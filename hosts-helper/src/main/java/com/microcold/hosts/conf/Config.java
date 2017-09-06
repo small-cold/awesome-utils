@@ -51,6 +51,16 @@ public class Config {
      */
     private static File userSettingFile;
 
+    /**
+     * 缓存文件夹
+     */
+    private static File cacheFile;
+
+    /**
+     * hosts可选文件夹
+     */
+    private static File hostsFile;
+
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     static {
@@ -76,6 +86,14 @@ public class Config {
         }
         // 读取用户配置文件
         userSettingFile = new File(Config.workPath.toFile(), sysProperties.getProperty("user-setting-file"));
+        cacheFile = new File(Config.workPath.toFile(), sysProperties.getProperty("cache-file"));
+        hostsFile = new File(workPath.toFile(), "files");
+        if (!cacheFile.exists()) {
+            boolean result = Config.cacheFile.mkdirs();
+            if (!result) {
+                logger.error("创建缓存目录失败");
+            }
+        }
     }
 
     public static ConfigBean getConfigBean(){
@@ -115,11 +133,37 @@ public class Config {
         }
     }
 
-    public static List<File> getUserHostFileList(){
-        File file = new File(workPath.toFile(), "files");
+    public static File getHostsFileCategory(String name) throws IOException {
+        File root = getHostsFileRoot();
+        File newFile = new File(root, name);
+        if (!newFile.exists()){
+            boolean result = newFile.mkdirs();
+            if (!result) {
+                throw new IOException("创建hosts文件分组失败 name=" + name );
+            }
+        }
+        return newFile;
+    }
+
+    public static File getHostsFileRoot() throws IOException {
+        if (!hostsFile.exists()) {
+            boolean result = Config.hostsFile.mkdirs();
+            if (!result) {
+                throw new IOException("创建hosts文件目录失败");
+            }
+        }
+        return hostsFile;
+    }
+
+    public static List<File> getHostsFileList() throws IOException {
+        return getHostsFileList(getHostsFileRoot());
+    }
+
+    public static List<File> getHostsFileList(File file) throws IOException {
         List<File> fileList = Lists.newArrayList();
-        if (file.exists() && file.listFiles() != null) {
-            for (File childFile : file.listFiles()) {
+        File[] childFiles = file.listFiles();
+        if (childFiles != null) {
+            for (File childFile : childFiles) {
                 if (childFile.getName().startsWith(".")){
                     continue;
                 }
@@ -196,5 +240,27 @@ public class Config {
 
     public static void setAdminPassword(String adminPassword) {
         Config.adminPassword = adminPassword;
+    }
+
+    public static File getCacheFile(){
+        return cacheFile;
+    }
+
+    public static boolean isValidHostsCategory(File file) {
+        if (!file.exists() || file.isFile() || file.getName().startsWith(".")){
+            return false;
+        }
+        if (!file.getPath().startsWith(hostsFile.getPath())){
+            return false;
+        }
+        int deep = 0;
+        while (!file.equals(hostsFile)){
+            file = file.getParentFile();
+            deep ++;
+        }
+        if (deep > getConfigBean().getHostsCategoryDeep()){
+            return false;
+        }
+        return true;
     }
 }

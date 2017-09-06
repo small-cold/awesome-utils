@@ -3,6 +3,7 @@ package com.microcold.hosts.view.controller;
 import com.microcold.hosts.conf.Config;
 import com.microcold.hosts.conf.ConfigBean;
 import com.microcold.hosts.operate.HostsOperator;
+import com.microcold.hosts.operate.HostsOperatorCategory;
 import com.microcold.hosts.operate.HostsOperatorFactory;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -13,20 +14,19 @@ import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.log4j.Logger;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 /*
@@ -42,7 +42,7 @@ public class HomeController implements Initializable {
     @FXML
     public Label errorMessage;
     @FXML
-    public HostTableView hostsTableView;
+    public HostsTableView hostsTableView;
 
     /**
      * 自动备份菜单
@@ -51,44 +51,12 @@ public class HomeController implements Initializable {
     public CheckMenuItem autoBackupMenuItem;
 
     @FXML
-    public TreeView<HostsOperatorProperty> hostsFileTreeView;
+    public HostsFileTreeView hostsFileTreeView;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         initMenu(location, resources);
-        initHostsOperatorTree(location, resources);
-    }
-
-    private void initHostsOperatorTree(URL location, ResourceBundle resources) {
-        final TreeItem<HostsOperatorProperty> treeRoot = new TreeItem<>();
-        hostsFileTreeView.setRoot(treeRoot);
-        hostsFileTreeView.setShowRoot(false);
-        treeRoot.setExpanded(true);
-        try {
-            HostsOperator sysHostsOperator = HostsOperatorFactory.getSystemHostsOperator();
-            HostsOperator commonHostsOperator = HostsOperatorFactory.getCommonHostsOperator();
-            treeRoot.getChildren().addAll(Arrays.asList(
-                    new TreeItem<>(new HostsOperatorProperty().setShowName("当前配置")
-                            .setHostsOperator(sysHostsOperator)),
-                    new TreeItem<>(new HostsOperatorProperty().setShowName("通用配置")
-                            .setHostsOperator(commonHostsOperator)),
-                    new TreeItem<>(new HostsOperatorProperty().setShowName("用户配置")))
-            );
-            Map<String, HostsOperator> userHostsOperatorMap = HostsOperatorFactory.getUserHostsOperatorMap();
-            if (MapUtils.isNotEmpty(userHostsOperatorMap)) {
-                for (HostsOperator hostsOperator : userHostsOperatorMap.values()) {
-                    treeRoot.getChildren().get(2).getChildren().add(
-                            new TreeItem<>(new HostsOperatorProperty()
-                                    .setShowName(hostsOperator.getName())
-                                    .setHostsOperator(hostsOperator)));
-                }
-            }
-        } catch (IOException e) {
-            LOGGER.error("加载Hosts文件异常", e);
-            DialogUtils.createExceptionDialog("加载Hosts文件异常", e);
-            errorMessage.setText("加载Hosts文件异常");
-        }
-
+        hostsFileTreeView.init();
     }
 
     private void initMenu(URL location, ResourceBundle resources) {
@@ -136,7 +104,7 @@ public class HomeController implements Initializable {
                 hostsTableView.refreshData();
             } catch (FileNotFoundException e) {
                 DialogUtils.createExceptionDialog("读取文件异常", e);
-                hostsOperatorProperty.setEnable(false);
+                // hostsOperatorProperty.setEnable(false);
                 treeView.refresh();
             }
         }

@@ -89,7 +89,6 @@ public class HostsOperator {
      * @param path         写入地址
      */
     public void flush() throws IOException {
-        // TODO 重新排序
         try (FileWriter fileWriter = new FileWriter(file)) {
             for (HostBean hostBean : hostBeanList) {
                 fileWriter.write(hostBean.toString() + "\n");

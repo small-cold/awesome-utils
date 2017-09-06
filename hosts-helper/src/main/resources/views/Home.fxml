@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import com.microcold.hosts.view.controller.HostsFileTreeView?>
+<?import com.microcold.hosts.view.controller.HostsTableView?>
+<?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.control.CheckMenuItem?>
-<?import javafx.scene.control.TreeView?>
-<?import com.microcold.hosts.view.controller.HostTableView?>
-<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.layout.BorderPane?>
 <BorderPane fx:controller="com.microcold.hosts.view.controller.HomeController"
             xmlns:fx="http://javafx.com/fxml"
             minWidth="720" minHeight="540">
@@ -26,18 +24,18 @@
                 <MenuItem text="配置"/>
             </Menu>
             <!--<Menu text="Help">-->
-                <!--<MenuItem text="Search" disable="true"/>-->
-                <!--<MenuItem text="Online Manual" visible="false"/>-->
-                <!--<SeparatorMenuItem/>-->
-                <!--&lt;!&ndash;<MenuItem text="About" onAction="#handleAboutAction"/>&ndash;&gt;-->
+            <!--<MenuItem text="Search" disable="true"/>-->
+            <!--<MenuItem text="Online Manual" visible="false"/>-->
+            <!--<SeparatorMenuItem/>-->
+            <!--&lt;!&ndash;<MenuItem text="About" onAction="#handleAboutAction"/>&ndash;&gt;-->
             <!--</Menu>-->
         </MenuBar>
     </top>
     <left>
-        <TreeView fx:id="hostsFileTreeView" maxWidth="120" onMouseClicked="#refreshHostsTable"/>
+        <HostsFileTreeView fx:id="hostsFileTreeView" maxWidth="120" onMouseClicked="#refreshHostsTable"/>
     </left>
     <center>
-        <HostTableView fx:id="hostsTableView" minWidth="600" minHeight="400"/>
+        <HostsTableView fx:id="hostsTableView" minWidth="600" minHeight="400"/>
     </center>
     <bottom>
         <Label fx:id="errorMessage"/>

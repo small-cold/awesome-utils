@@ -5,6 +5,7 @@ import com.microcold.hosts.conf.Config;
 import com.microcold.hosts.conf.ConfigBean;
 import com.microcold.hosts.operate.HostBean;
 import com.microcold.hosts.operate.HostsOperator;
+import com.microcold.hosts.operate.HostsOperatorCategory;
 import com.microcold.hosts.operate.HostsOperatorFactory;
 import com.microcold.hosts.utils.IPDomainUtil;
 import org.apache.commons.cli.CommandLine;
@@ -22,7 +23,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.Map;
 
 /*
  * Created by MicroCold on 2017/9/1.
@@ -75,15 +75,15 @@ public class HostsCommand {
     }
 
     private static void switchFile(String fileName, boolean isBackup) throws IOException {
-        Map<String, HostsOperator> hostsOperatorMap = HostsOperatorFactory.getUserHostsOperatorMap();
-        // 没输入文件名，提示选择
+        HostsOperatorCategory hostsOperatorMap = HostsOperatorFactory.getUserHostsOperatorCategory();
+        // FIXME 多层分组，这样有问题呀，没输入文件名，提示选择
         if (StringUtils.isBlank(fileName)) {
             StringBuilder msg = new StringBuilder("可选环境如下：");
             int index = 0;
-            for (HostsOperator hostsOperator : hostsOperatorMap.values()) {
+            for (HostsOperator hostsOperator : hostsOperatorMap.getHostsOperatorList()) {
                 msg.append(index).append(". ").append(hostsOperator.getName());
                 index++;
-                if (index < hostsOperatorMap.size()) {
+                if (index < hostsOperatorMap.getHostsOperatorList().size()) {
                     msg.append(", ");
                 }
             }
@@ -96,11 +96,11 @@ public class HostsCommand {
         if (comHostsOperator != null) {
             comHostsOperator.init();
         }
-        HostsOperator newHostsOperator = hostsOperatorMap.get(fileName);
+        HostsOperator newHostsOperator = hostsOperatorMap.getHostsOperator(fileName);
         if (newHostsOperator == null && fileName.matches("\\d+")) {
             Integer fileIndex = Integer.parseInt(fileName);
-            if (fileIndex >= 0 && fileIndex < hostsOperatorMap.size()) {
-                newHostsOperator = Lists.newArrayList(hostsOperatorMap.values().iterator())
+            if (fileIndex >= 0 && fileIndex < hostsOperatorMap.getHostsOperatorList().size()) {
+                newHostsOperator = Lists.newArrayList(hostsOperatorMap.getHostsOperatorList().iterator())
                         .get(fileIndex).init();
             }
         }

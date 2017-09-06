@@ -1,14 +1,15 @@
 package com.microcold.hosts.operate;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.microcold.hosts.conf.Config;
-import com.microcold.hosts.enums.EnumOS;
-import com.microcold.hosts.utils.SystemUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -17,32 +18,42 @@ import java.util.Map;
  */
 public class HostsOperatorFactory {
 
-    private static HostsOperator sysHostsOperator;
     private static HostsOperator comHostsOperator;
 
     public static HostsOperator getSystemHostsOperator()  {
-        if (sysHostsOperator != null){
-            return sysHostsOperator;
-        }
-        if (SystemUtil.CURRENT_OS == EnumOS.MacOS){
-            sysHostsOperator = new HostsOperator("/etc/hosts");
-        }
-        return sysHostsOperator;
+        return SysHostsOperator.getInstance();
     }
 
-    public static Map<String, HostsOperator> getUserHostsOperatorMap() {
-        Map<String, HostsOperator> hostsOperatorTreeMap = Maps.newTreeMap();
-        List<File> fileList = Config.getUserHostFileList();
-        if (CollectionUtils.isNotEmpty(fileList)) {
-            for (File childFile : fileList) {
-                if (childFile.getName().startsWith(".")){
-                    continue;
-                }
-                HostsOperator hostsOperator = new HostsOperator(childFile);
-                hostsOperatorTreeMap.put(hostsOperator.getName(), hostsOperator);
+    public static HostsOperatorCategory getUserHostsOperatorCategory() throws IOException {
+        return build(Config.getHostsFileRoot());
+    }
+
+    private static HostsOperatorCategory build(File file) throws IOException {
+        HostsOperatorCategory hostsOperatorCategory = new HostsOperatorCategory();
+        List<HostsOperatorCategory> subCategoryList = Lists.newArrayList();
+        for (File subFile : Config.getHostsFileList(file)) {
+            if (subFile.isFile()) {
+                hostsOperatorCategory.getHostsOperatorList().add(new HostsOperator(subFile));
+            } else if (subFile.isDirectory() && Config.isValidHostsCategory(file)) {
+                hostsOperatorCategory.setName(file.getName());
+                hostsOperatorCategory.setSort(100);
+                subCategoryList.add(build(subFile));
             }
         }
-        return hostsOperatorTreeMap;
+        hostsOperatorCategory.getHostsOperatorList().sort(Comparator.comparing(HostsOperator::getName));
+        subCategoryList.sort((category1, category2) -> {
+            if (category1 == null || category2 == null) {
+                return 0;
+            }
+            if (category1.getSort() != category2.getSort()) {
+                return category1.getSort() - category2.getSort();
+            }
+            if (StringUtils.isBlank(category1.getName()) || StringUtils.isBlank(category2.getName())) {
+                return 0;
+            }
+            return category1.getName().compareTo(category2.getName());
+        });
+        return hostsOperatorCategory;
     }
 
     public static HostsOperator getCommonHostsOperator() throws IOException {

@@ -25,9 +25,9 @@ import java.util.List;
 /*
  * Created by MicroCold on 2017/9/5.
  */
-public class HostTableView extends TableView<HostProperty> {
+public class HostsTableView extends TableView<HostProperty> {
 
-    private static final Logger LOGGER = Logger.getLogger(HostTableView.class);
+    private static final Logger LOGGER = Logger.getLogger(HostsTableView.class);
 
     /**
      * 当前hosts操作类
@@ -38,11 +38,11 @@ public class HostTableView extends TableView<HostProperty> {
 
     private List<HostProperty> hostList;
 
-    public HostTableView() {
+    public HostsTableView() {
         this(HostsOperatorFactory.getSystemHostsOperator());
     }
 
-    public HostTableView(HostsOperator hostsOperator) {
+    public HostsTableView(HostsOperator hostsOperator) {
         super();
         this.hostsOperator = hostsOperator;
         initTableContent();

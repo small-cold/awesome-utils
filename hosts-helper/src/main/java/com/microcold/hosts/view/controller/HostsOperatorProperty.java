@@ -1,56 +1,43 @@
 package com.microcold.hosts.view.controller;
 
 import com.microcold.hosts.operate.HostsOperator;
+import com.microcold.hosts.operate.HostsOperatorCategory;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
+import static java.lang.Compiler.disable;
+
 /*
  * Created by MicroCold on 2017/9/5.
  */
-public class HostsOperatorProperty {
+public class HostsOperatorProperty{
 
-    /**
-     * 显示名称
-     */
-    private String showName;
-
+    @Getter
     private HostsOperator hostsOperator;
 
-    @Setter
     @Getter
-    private boolean enable;
-
-    public String getShowName() {
-        return showName;
-    }
-
-    public HostsOperatorProperty setShowName(String showName) {
-        this.showName = showName;
-        this.enable = true;
-        return this;
-    }
-
-    public HostsOperator getHostsOperator() {
-        return hostsOperator;
-    }
+    private HostsOperatorCategory hostsOperatorCategory;
 
     public HostsOperatorProperty setHostsOperator(HostsOperator hostsOperator) {
         this.hostsOperator = hostsOperator;
         return this;
     }
 
+    public HostsOperatorProperty setHostsOperatorCategory(
+            HostsOperatorCategory hostsOperatorCategory) {
+        this.hostsOperatorCategory = hostsOperatorCategory;
+        return this;
+    }
+
     @Override
     public String toString() {
         String result = "--";
-        if (StringUtils.isNotBlank(showName)){
-            result = showName;
-        }
         if (hostsOperator != null){
             result = hostsOperator.getName();
         }
-        if (!enable){
-            result += "[无效]";
+        if (hostsOperatorCategory != null){
+            result = hostsOperatorCategory.getName();
         }
         return result;
     }
