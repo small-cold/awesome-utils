@@ -25,7 +25,7 @@ import java.util.Set;
  * Created by MicroCold on 2017/9/1.
  */
 public class HostsOperator {
-    private static final Logger LOGGER = Logger.getLogger(HostsOperator.class);
+    protected static final Logger LOGGER = Logger.getLogger(HostsOperator.class);
 
     @Getter
     @Setter
@@ -38,6 +38,11 @@ public class HostsOperator {
     @Getter
     @Setter
     private String name;
+
+    /**
+     * 是否不可用
+     */
+    private boolean isDisable = false;
 
     public HostsOperator(String path) {
         this(new File(path));
@@ -53,7 +58,12 @@ public class HostsOperator {
         this.hostBeanList = Collections.emptyList();
     }
 
-    public HostsOperator init() throws FileNotFoundException {
+    public boolean isOnlyRead(){
+        return false;
+    }
+
+    public HostsOperator init(){
+        setDisable(false);
         hostBeanList = readHostFile();
         return this;
     }
@@ -63,11 +73,20 @@ public class HostsOperator {
      *
      * @param path hosts 文件地址
      * @return List<HostBean>
-     * @throws FileNotFoundException 文件不存在
      */
-    public List<HostBean> readHostFile() throws FileNotFoundException {
-        FileReader reader = new FileReader(file);
+    public List<HostBean> readHostFile(){
         List<HostBean> hostBeanList = Lists.newArrayList();
+        if (isDisable()){
+            return hostBeanList;
+        }
+        FileReader reader = null;
+        try {
+            reader = new FileReader(file);
+        } catch (FileNotFoundException e) {
+            LOGGER.error(e);
+            setDisable(true);
+            return hostBeanList;
+        }
         try (BufferedReader bufferedReader = new BufferedReader(reader)) {
             String line = null;
             while ((line = bufferedReader.readLine()) != null) {
@@ -322,10 +341,20 @@ public class HostsOperator {
         return getHostBeanList().get(i);
     }
 
-    public boolean saveComment(int i, String newValue) {
+    public boolean saveComment(int i, String newValue) throws IOException {
         if (i < 0 || i >= hostBeanList.size()) {
             return false;
         }
+        hostBeanList.get(i).setComment(newValue);
+        flush();
         return false;
+    }
+
+    public void setDisable(boolean disable) {
+        this.isDisable = disable;
+    }
+
+    public boolean isDisable() {
+        return isDisable || !file.exists() || file.isDirectory();
     }
 }

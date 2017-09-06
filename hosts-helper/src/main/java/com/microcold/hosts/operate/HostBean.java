@@ -132,6 +132,12 @@ public class HostBean {
             return comment;
         }
         StringBuilder sb = new StringBuilder();
+        if (StringUtils.isNotBlank(comment)){
+            if (!comment.startsWith("#")){
+                sb.append("# ");
+            }
+            sb.append(comment.replaceAll("\\s", "")).append("\n");
+        }
         if (!isEnable()){
             sb.append("# ");
         }

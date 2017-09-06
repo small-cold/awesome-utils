@@ -3,6 +3,7 @@ package com.microcold.hosts.conf;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.microcold.hosts.operate.HostsOperator;
+import com.microcold.hosts.utils.SystemUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonParser;
@@ -99,6 +100,7 @@ public class Config {
     public static ConfigBean getConfigBean(){
         if (!userSettingFile.exists()) {
             ConfigBean configBean = new ConfigBean();
+            configBean.setSysHostsPath(SystemUtil.getSysHostsPath());
             saveConfig(configBean);
             return configBean;
         }
@@ -238,8 +240,12 @@ public class Config {
         return adminPassword;
     }
 
-    public static void setAdminPassword(String adminPassword) {
-        Config.adminPassword = adminPassword;
+    public static boolean setAdminPassword(String adminPassword) {
+        if (SystemUtil.changeMod(adminPassword, SystemUtil.getSysHostsPath())){
+            Config.adminPassword = adminPassword;
+            return true;
+        }
+        return false;
     }
 
     public static File getCacheFile(){
@@ -258,9 +264,17 @@ public class Config {
             file = file.getParentFile();
             deep ++;
         }
-        if (deep > getConfigBean().getHostsCategoryDeep()){
-            return false;
+        if (deep <= getConfigBean().getHostsCategoryDeep()){
+            return true;
         }
-        return true;
+        return false;
+    }
+
+    public static String getSysHostsPath(){
+        String path = SystemUtil.getSysHostsPath();
+        if (StringUtils.isNotBlank(path)){
+            return path;
+        }
+        return getConfigBean().getSysHostsPath();
     }
 }

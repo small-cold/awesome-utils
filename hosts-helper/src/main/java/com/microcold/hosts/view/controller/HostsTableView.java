@@ -82,6 +82,7 @@ public class HostsTableView extends TableView<HostProperty> {
         ipCol.setOnEditCommit(event -> {
             try {
                 hostsOperator.saveIp(event.getRowValue().idProperty().get(), event.getNewValue());
+                event.getRowValue().ipProperty().set(event.getNewValue());
             } catch (IOException e) {
                 LOGGER.error("保存hosts状态失败", e);
                 DialogUtils.createDialogCheckPermission(e);
@@ -96,6 +97,7 @@ public class HostsTableView extends TableView<HostProperty> {
         domainCol.setOnEditCommit(event -> {
             try {
                 hostsOperator.saveDomain(event.getRowValue().idProperty().get(), event.getNewValue());
+                event.getRowValue().domainProperty().set(event.getNewValue());
             } catch (IOException e) {
                 LOGGER.error("保存hosts状态失败", e);
                 DialogUtils.createDialogCheckPermission(e);
@@ -106,19 +108,26 @@ public class HostsTableView extends TableView<HostProperty> {
         domainCol.setCellValueFactory(new PropertyValueFactory<>("domain"));
         domainCol.setCellFactory(TextFieldTableCell.forTableColumn(sc));
 
-        TableColumn<HostProperty, String> contentCol = new TableColumn<>();
-        contentCol.setOnEditCommit(event ->
-                hostsOperator.saveComment(event.getRowValue().idProperty().get(), event.getNewValue()));
-        contentCol.setText("备注");
-        contentCol.setMinWidth(220);
-        contentCol.setCellValueFactory(new PropertyValueFactory<>("comment"));
-        contentCol.setCellFactory(TextFieldTableCell.forTableColumn(sc));
+        TableColumn<HostProperty, String> commentCol = new TableColumn<>();
+        commentCol.setOnEditCommit(event ->{
+                    try {
+                        hostsOperator.saveComment(event.getRowValue().idProperty().get(), event.getNewValue());
+                        event.getRowValue().commentProperty().set(event.getNewValue());
+                    } catch (IOException e) {
+                        LOGGER.error("保存hosts状态失败", e);
+                        DialogUtils.createDialogCheckPermission(e);
+                    }
+                });
+        commentCol.setText("备注");
+        commentCol.setMinWidth(220);
+        commentCol.setCellValueFactory(new PropertyValueFactory<>("comment"));
+        commentCol.setCellFactory(TextFieldTableCell.forTableColumn(sc));
 
         setEditable(true);
-        super.getColumns().setAll(enableCol, ipCol, domainCol, contentCol);
+        super.getColumns().setAll(enableCol, ipCol, domainCol, commentCol);
     }
 
-    public void refreshData() throws FileNotFoundException {
+    public void refreshData(){
         if (hostsOperator == null) {
             return;
         }

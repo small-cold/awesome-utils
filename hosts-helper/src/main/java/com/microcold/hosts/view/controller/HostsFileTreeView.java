@@ -3,21 +3,18 @@ package com.microcold.hosts.view.controller;
 import com.microcold.hosts.operate.HostsOperator;
 import com.microcold.hosts.operate.HostsOperatorCategory;
 import com.microcold.hosts.operate.HostsOperatorFactory;
+import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.util.List;
-import java.util.ResourceBundle;
 
 /*
  * Created by MicroCold on 2017/9/6.
  */
-public class HostsFileTreeView extends TreeView<HostsOperatorProperty>{
+public class HostsFileTreeView extends TreeView<HostsOperatorProperty> {
 
     private static final Logger LOGGER = Logger.getLogger(HostsFileTreeView.class);
 
@@ -31,13 +28,11 @@ public class HostsFileTreeView extends TreeView<HostsOperatorProperty>{
                     .setHostsOperator(HostsOperatorFactory.getSystemHostsOperator())));
             addItem(treeRoot, HostsOperatorFactory.getUserHostsOperatorCategory());
         } catch (IOException e) {
-            LOGGER.error("加载Hosts文件异常", e);
             DialogUtils.createExceptionDialog("加载Hosts文件异常", e);
-            // errorMessage.setText("加载Hosts文件异常");
         }
     }
 
-    private void addItem(TreeItem<HostsOperatorProperty> parentItem, HostsOperatorCategory hostsOperatorCategory){
+    private void addItem(TreeItem<HostsOperatorProperty> parentItem, HostsOperatorCategory hostsOperatorCategory) {
         if (CollectionUtils.isNotEmpty(hostsOperatorCategory.getHostsOperatorList())) {
             for (HostsOperator hostsOperator : hostsOperatorCategory.getHostsOperatorList()) {
                 parentItem.getChildren().add(

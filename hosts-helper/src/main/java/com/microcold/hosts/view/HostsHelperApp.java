@@ -4,6 +4,7 @@ package com.microcold.hosts.view;
  */
 
 import com.google.common.collect.Lists;
+import com.microcold.hosts.view.controller.DialogUtils;
 import com.microcold.hosts.view.controller.HomeController;
 import com.microcold.hosts.operate.HostBean;
 import com.microcold.hosts.operate.HostsOperator;

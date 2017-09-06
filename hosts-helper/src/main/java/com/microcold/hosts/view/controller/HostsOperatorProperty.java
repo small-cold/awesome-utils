@@ -3,15 +3,11 @@ package com.microcold.hosts.view.controller;
 import com.microcold.hosts.operate.HostsOperator;
 import com.microcold.hosts.operate.HostsOperatorCategory;
 import lombok.Getter;
-import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
-
-import static java.lang.Compiler.disable;
 
 /*
  * Created by MicroCold on 2017/9/5.
  */
-public class HostsOperatorProperty{
+public class HostsOperatorProperty {
 
     @Getter
     private HostsOperator hostsOperator;
@@ -33,10 +29,10 @@ public class HostsOperatorProperty{
     @Override
     public String toString() {
         String result = "--";
-        if (hostsOperator != null){
+        if (hostsOperator != null) {
             result = hostsOperator.getName();
         }
-        if (hostsOperatorCategory != null){
+        if (hostsOperatorCategory != null) {
             result = hostsOperatorCategory.getName();
         }
         return result;

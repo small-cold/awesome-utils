@@ -18,21 +18,21 @@ public class HostProperty {
     private final BooleanProperty enable;
     private final StringProperty ip;
     private final StringProperty domain;
-    private final StringProperty content;
+    private final StringProperty comment;
 
     public HostProperty() {
         this.id = new SimpleIntegerProperty(-1);
         this.enable = new SimpleBooleanProperty(false);
         this.ip = new SimpleStringProperty("");
         this.domain = new SimpleStringProperty("");
-        this.content = new SimpleStringProperty("");
+        this.comment = new SimpleStringProperty("");
     }
     public HostProperty(HostBean hostBean) {
         this.id = new SimpleIntegerProperty(hostBean.getId());
         this.enable = new SimpleBooleanProperty(hostBean.isEnable());
         this.ip = new SimpleStringProperty(IPDomainUtil.longToIP(hostBean.getIp()));
         this.domain = new SimpleStringProperty(hostBean.getDomain());
-        this.content = new SimpleStringProperty(hostBean.getComment());
+        this.comment = new SimpleStringProperty(hostBean.getComment());
     }
 
     public BooleanProperty enableProperty() { return enable; }
@@ -43,5 +43,5 @@ public class HostProperty {
 
     public StringProperty domainProperty() { return domain; }
 
-    public StringProperty contentProperty() { return content; }
+    public StringProperty commentProperty() { return comment; }
 }

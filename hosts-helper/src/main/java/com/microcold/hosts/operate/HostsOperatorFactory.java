@@ -31,15 +31,16 @@ public class HostsOperatorFactory {
     private static HostsOperatorCategory build(File file) throws IOException {
         HostsOperatorCategory hostsOperatorCategory = new HostsOperatorCategory();
         List<HostsOperatorCategory> subCategoryList = Lists.newArrayList();
+        hostsOperatorCategory.setName(file.getName());
         for (File subFile : Config.getHostsFileList(file)) {
             if (subFile.isFile()) {
                 hostsOperatorCategory.getHostsOperatorList().add(new HostsOperator(subFile));
-            } else if (subFile.isDirectory() && Config.isValidHostsCategory(file)) {
-                hostsOperatorCategory.setName(file.getName());
+            } else if (Config.isValidHostsCategory(subFile)) {
                 hostsOperatorCategory.setSort(100);
                 subCategoryList.add(build(subFile));
             }
         }
+        hostsOperatorCategory.setSubCategoryList(subCategoryList);
         hostsOperatorCategory.getHostsOperatorList().sort(Comparator.comparing(HostsOperator::getName));
         subCategoryList.sort((category1, category2) -> {
             if (category1 == null || category2 == null) {

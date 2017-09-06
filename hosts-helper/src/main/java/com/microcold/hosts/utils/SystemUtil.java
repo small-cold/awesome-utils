@@ -1,11 +1,11 @@
 package com.microcold.hosts.utils;
 
-import com.microcold.hosts.conf.Config;
 import com.microcold.hosts.enums.EnumOS;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /*
@@ -50,8 +50,6 @@ public class SystemUtil {
                 }
             }else if (CURRENT_OS == EnumOS.MacOS || CURRENT_OS == EnumOS.Linux) {
                 SYS_HOSTS_PATH = "/etc/hosts";
-            } else {
-                SYS_HOSTS_PATH = Config.getConfigBean().getSysHostsPath();
             }
         }
         return SYS_HOSTS_PATH;
@@ -64,6 +62,9 @@ public class SystemUtil {
      * @return
      */
     public static boolean changeMod(String pwd, String path) {
+        if (StringUtils.isBlank(pwd)){
+            return false;
+        }
         if (pwd.equals("no")) {
             return true;
         }
@@ -71,6 +72,24 @@ public class SystemUtil {
             String[] cmds = new String[] { "/bin/bash",
                     "-c",
                     "echo \"" + pwd + "\"| sudo -S chmod " + SYS_HOSTS_WRITE_MOD + " " + path };
+            return runProcessExce(cmds);
+        } catch (IOException | InterruptedException e) {
+            Logger.getLogger(SystemUtil.class).error("修改文件权限失败", e);
+        }
+        return false;
+    }
+
+    public static boolean adminMove(File source, File target, String pwd) throws FileNotFoundException {
+        if (source == null || target == null){
+            throw new IllegalArgumentException("source and target file must be not null");
+        }
+        if (!source.exists()){
+            throw new FileNotFoundException("source is not exists");
+        }
+        try {
+            String[] cmds = new String[] { "/bin/bash",
+                    "-c",
+                    "echo \"" + pwd + "\"| sudo -S mv " + source.getPath() + " " + target.getPath() };
             return runProcessExce(cmds);
         } catch (IOException | InterruptedException e) {
             Logger.getLogger(SystemUtil.class).error("修改文件权限失败", e);
