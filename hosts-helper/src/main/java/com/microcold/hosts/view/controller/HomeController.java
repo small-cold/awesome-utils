@@ -32,7 +32,7 @@ public class HomeController implements Initializable {
     @FXML
     public MenuBar menuBar;
     @FXML
-    public Label errorMessage;
+    public Label messageLabel;
     @FXML
     public HostsTableView hostsTableView;
 
@@ -58,7 +58,7 @@ public class HomeController implements Initializable {
             autoBackupMenuItem.setSelected(BooleanUtils.isTrue(configBean.getAutoBackup()));
         } catch (Exception e) {
             DialogUtils.createExceptionDialog("读取配置文件错误", e);
-            errorMessage.setText("读取配置文件错误");
+            messageLabel.setText("读取配置文件错误");
         }
 
         if (os != null && os.startsWith("Mac")) {
@@ -74,7 +74,7 @@ public class HomeController implements Initializable {
             HBox hbox = new HBox();
             hbox.setAlignment(Pos.CENTER);
             menuBar.heightProperty().addListener((ObservableValue<? extends Number> ov, Number t, Number t1) -> {
-                errorMessage.setVisible((menuBar.getHeight() == 0));
+                messageLabel.setVisible((menuBar.getHeight() == 0));
             });
         }
     }
@@ -93,7 +93,7 @@ public class HomeController implements Initializable {
                 && hostsFileTreeView.getSelectionModel().getSelectedItem() != null) {
             HostsOperatorProperty hostsOperatorProperty = hostsFileTreeView.getSelectionModel().getSelectedItem()
                     .getValue();
-            if (mouseEvent.getClickCount() > 0) {
+            if (mouseEvent.getClickCount() == 1) {
                 refreshCurrentHostsOperator(hostsOperatorProperty);
             }
             if (mouseEvent.getClickCount() == 2 && hostsOperatorProperty.getHostsOperator() != null) {
@@ -104,6 +104,7 @@ public class HomeController implements Initializable {
                     // TODO 自动备份
                     if (HostsOperatorFactory.getSystemHostsOperator().isChanged()){
                         HostsOperatorFactory.getSystemHostsOperator().flush();
+                        messageLabel.setText("当前使用【" + hostsOperatorProperty.getHostsOperator().getName() + "】");
                     }
                 } catch (IOException e) {
                     DialogUtils.createDialogCheckPermission(e);

@@ -38,6 +38,6 @@
         <HostsTableView fx:id="hostsTableView" minWidth="600" minHeight="400"/>
     </center>
     <bottom>
-        <Label fx:id="errorMessage"/>
+        <Label fx:id="messageLabel"/>
     </bottom>
 </BorderPane>

@@ -45,10 +45,12 @@ public class SysHostsOperator extends HostsOperator {
             }
             //  copy to 系统目录
             SystemUtil.adminMove(cacheFile, new File(SystemUtil.getSysHostsPath()), Config.getAdminPassword());
+            // 清除系统缓存
+            SystemUtil.clearDNSCache(null);
         } catch (IOException e) {
             LOGGER.error("写入Hosts文件发生错误 file=" + cacheFile, e);
             throw e;
         }
-        super.flush();
+        // super.flush();
     }
 }
