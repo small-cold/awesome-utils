@@ -175,12 +175,8 @@ public class Config {
         return fileList;
     }
 
-    public static File getCommonHostFile() throws IOException {
-        ConfigBean configBean = getConfigBean();
-        if (configBean != null){
-            return new File(workPath.toFile(), getConfigBean().getCommonHostsFileName());
-        }
-        return null;
+    public static File getCommonHostFile(){
+        return new File(userSettingFile, getConfigBean().getCommonHostsFileName());
     }
 
     /**

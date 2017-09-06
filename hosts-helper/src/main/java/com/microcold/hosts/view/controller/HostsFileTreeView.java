@@ -3,7 +3,6 @@ package com.microcold.hosts.view.controller;
 import com.microcold.hosts.operate.HostsOperator;
 import com.microcold.hosts.operate.HostsOperatorCategory;
 import com.microcold.hosts.operate.HostsOperatorFactory;
-import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import org.apache.commons.collections.CollectionUtils;

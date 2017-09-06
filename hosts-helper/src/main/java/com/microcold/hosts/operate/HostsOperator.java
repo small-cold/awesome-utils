@@ -1,11 +1,13 @@
 package com.microcold.hosts.operate;
 
 import com.google.common.collect.Lists;
+import com.microcold.hosts.conf.Config;
 import com.microcold.hosts.utils.IPDomainUtil;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -15,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +41,10 @@ public class HostsOperator {
     @Getter
     @Setter
     private String name;
+
+    @Getter
+    @Setter
+    private boolean isChanged = false;
 
     /**
      * 是否不可用
@@ -64,6 +71,7 @@ public class HostsOperator {
 
     public HostsOperator init(){
         setDisable(false);
+        setChanged(false);
         hostBeanList = readHostFile();
         return this;
     }
@@ -112,6 +120,7 @@ public class HostsOperator {
             for (HostBean hostBean : hostBeanList) {
                 fileWriter.write(hostBean.toString() + "\n");
             }
+            setChanged(false);
         } catch (IOException e) {
             LOGGER.error("写入Hosts文件发生错误 file=" + file + ", hostBeanList=" + hostBeanList, e);
             throw e;
@@ -166,7 +175,6 @@ public class HostsOperator {
         if (StringUtils.isBlank(domain)) {
             throw new RuntimeException("禁用域名不能为空");
         }
-        boolean changed = false;
         List<HostBean> hostBeanList = Lists.newArrayList(getHostBeanList().iterator());
         for (HostBean existHostBean : hostBeanList) {
             if (!existHostBean.isValid()
@@ -178,10 +186,7 @@ public class HostsOperator {
                 continue;
             }
             existHostBean.setEnable(false);
-            changed = true;
-        }
-        if (changed) {
-            flush();
+            isChanged = true;
         }
     }
 
@@ -192,7 +197,6 @@ public class HostsOperator {
         if (StringUtils.isBlank(domain)) {
             throw new RuntimeException("启用域名不能为空");
         }
-        boolean changed = false;
         List<HostBean> hostBeanList = Lists.newArrayList(getHostBeanList().iterator());
         for (HostBean existHostBean : hostBeanList) {
             if (!existHostBean.isValid()) {
@@ -208,19 +212,16 @@ public class HostsOperator {
             }
             if (existHostBean.getIp() != ip) { // IP 不同，全部禁用
                 existHostBean.setEnable(false);
-                changed = true;
+                isChanged = true;
             } else if (!existHostBean.isEnable()) { // IP 相同，原来的禁用
                 existHostBean.setEnable(true);
-                changed = true;
+                isChanged = true;
             }
             HostBean newHostBean = new HostBean(ip, domain, true);
             if (!getHostBeanList().contains(newHostBean)) {
                 getHostBeanList().add(newHostBean);
-                changed = true;
+                isChanged = true;
             }
-        }
-        if (changed) {
-            flush();
         }
     }
 
@@ -244,11 +245,16 @@ public class HostsOperator {
                 if (hostBean.isValid() && newHostBeanList.contains(hostBean)) {
                     continue;
                 }
+                if (!isChanged){
+                    isChanged = !getHostBeanList().contains(hostBean);
+                }
                 newHostBeanList.add(hostBean);
             }
         }
-        setHostBeanList(newHostBeanList);
-        flush();
+        if (isChanged || newHostBeanList.size() != getHostBeanList().size()){
+            isChanged = true;
+            setHostBeanList(newHostBeanList);
+        }
     }
 
     @Override
@@ -268,7 +274,7 @@ public class HostsOperator {
             }
             if (hostBean.getIp() == sourceIp) {
                 hostBean.setIp(targetIp);
-                flush();
+                isChanged = true;
             }
         }
     }
@@ -290,7 +296,7 @@ public class HostsOperator {
         HostBean hostBean = hostBeanList.get(i);
         if (enable != hostBean.isEnable()) {
             hostBean.setEnable(enable);
-            flush();
+            isChanged = true;
             return true;
         }
         return true;
@@ -311,7 +317,7 @@ public class HostsOperator {
 
         if (!hostBean.getDomain().equals(domain)) {
             hostBean.setDomain(domain);
-            flush();
+            isChanged = true;
             return true;
         }
         return false;
@@ -331,7 +337,7 @@ public class HostsOperator {
         HostBean hostBean = hostBeanList.get(i);
         if (hostBean.getIp() != ip) {
             hostBean.setIp(ip);
-            flush();
+            isChanged = true;
             return true;
         }
         return false;
@@ -346,7 +352,7 @@ public class HostsOperator {
             return false;
         }
         hostBeanList.get(i).setComment(newValue);
-        flush();
+        isChanged = true;
         return false;
     }
 

@@ -59,7 +59,7 @@ public class HostsOperatorFactory {
 
     public static HostsOperator getCommonHostsOperator() throws IOException {
         File file = Config.getCommonHostFile();
-        if (file != null && file.exists() && file.isFile()){
+        if (file.exists() && file.isFile()){
             comHostsOperator = new HostsOperator(file);
         }
         return comHostsOperator;

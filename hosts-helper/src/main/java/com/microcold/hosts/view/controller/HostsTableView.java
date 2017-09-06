@@ -72,6 +72,9 @@ public class HostsTableView extends TableView<HostProperty> {
             HostProperty hostProperty = hostList.get(param);
             try {
                 hostsOperator.enable(hostProperty.idProperty().get(), hostProperty.enableProperty().getValue());
+                if (hostsOperator.isChanged()){
+                    hostsOperator.flush();
+                }
             } catch (IOException e) {
                 LOGGER.error("保存hosts状态失败", e);
                 DialogUtils.createDialogCheckPermission(e);
@@ -83,6 +86,9 @@ public class HostsTableView extends TableView<HostProperty> {
             try {
                 hostsOperator.saveIp(event.getRowValue().idProperty().get(), event.getNewValue());
                 event.getRowValue().ipProperty().set(event.getNewValue());
+                if (hostsOperator.isChanged()){
+                    hostsOperator.flush();
+                }
             } catch (IOException e) {
                 LOGGER.error("保存hosts状态失败", e);
                 DialogUtils.createDialogCheckPermission(e);
@@ -98,6 +104,9 @@ public class HostsTableView extends TableView<HostProperty> {
             try {
                 hostsOperator.saveDomain(event.getRowValue().idProperty().get(), event.getNewValue());
                 event.getRowValue().domainProperty().set(event.getNewValue());
+                if (hostsOperator.isChanged()){
+                    hostsOperator.flush();
+                }
             } catch (IOException e) {
                 LOGGER.error("保存hosts状态失败", e);
                 DialogUtils.createDialogCheckPermission(e);
@@ -113,6 +122,9 @@ public class HostsTableView extends TableView<HostProperty> {
                     try {
                         hostsOperator.saveComment(event.getRowValue().idProperty().get(), event.getNewValue());
                         event.getRowValue().commentProperty().set(event.getNewValue());
+                        if (hostsOperator.isChanged()){
+                            hostsOperator.flush();
+                        }
                     } catch (IOException e) {
                         LOGGER.error("保存hosts状态失败", e);
                         DialogUtils.createDialogCheckPermission(e);
@@ -131,7 +143,6 @@ public class HostsTableView extends TableView<HostProperty> {
         if (hostsOperator == null) {
             return;
         }
-        // HostsOperator sysHostsOperator = HostsOperatorFactory.getSystemHostsOperator();
         hostsOperator.init();
         hostList = Lists.newArrayList();
         for (HostBean hostBean : hostsOperator.getHostBeanList()) {

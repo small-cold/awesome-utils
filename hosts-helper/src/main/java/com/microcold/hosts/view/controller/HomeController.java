@@ -2,6 +2,7 @@ package com.microcold.hosts.view.controller;
 
 import com.microcold.hosts.conf.Config;
 import com.microcold.hosts.conf.ConfigBean;
+import com.microcold.hosts.operate.HostsOperatorFactory;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,13 +12,12 @@ import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.log4j.Logger;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -88,11 +88,35 @@ public class HomeController implements Initializable {
 
     @FXML
     public void refreshHostsTable(MouseEvent mouseEvent) {
-        if (mouseEvent.getClickCount() == 2 && mouseEvent.getSource() instanceof TreeView) {
-            TreeView<HostsOperatorProperty> treeView = (TreeView<HostsOperatorProperty>) mouseEvent.getSource();
-            HostsOperatorProperty hostsOperatorProperty = treeView.getSelectionModel().getSelectedItem().getValue();
+        // 单击，刷新table
+        if (mouseEvent.getSource() == hostsFileTreeView
+                && hostsFileTreeView.getSelectionModel().getSelectedItem() != null) {
+            HostsOperatorProperty hostsOperatorProperty = hostsFileTreeView.getSelectionModel().getSelectedItem()
+                    .getValue();
+            if (mouseEvent.getClickCount() > 0) {
+                refreshCurrentHostsOperator(hostsOperatorProperty);
+            }
+            if (mouseEvent.getClickCount() == 2 && hostsOperatorProperty.getHostsOperator() != null) {
+                try {
+                    HostsOperatorFactory.getSystemHostsOperator().switchTo(
+                            HostsOperatorFactory.getCommonHostsOperator(),
+                            hostsOperatorProperty.getHostsOperator());
+                    // TODO 自动备份
+                    if (HostsOperatorFactory.getSystemHostsOperator().isChanged()){
+                        HostsOperatorFactory.getSystemHostsOperator().flush();
+                    }
+                } catch (IOException e) {
+                    DialogUtils.createDialogCheckPermission(e);
+                }
+            }
+        }
+    }
+
+    public void refreshCurrentHostsOperator(HostsOperatorProperty hostsOperatorProperty) {
+        if (hostsOperatorProperty.getHostsOperator() != null) {
             hostsTableView.setHostsOperator(hostsOperatorProperty.getHostsOperator());
             hostsTableView.refreshData();
+            hostsTableView.setEditable(!hostsOperatorProperty.getHostsOperator().isOnlyRead());
         }
     }
 }
