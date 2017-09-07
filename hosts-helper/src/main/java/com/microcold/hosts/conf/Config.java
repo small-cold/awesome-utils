@@ -1,8 +1,6 @@
 package com.microcold.hosts.conf;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.microcold.hosts.operate.HostsOperator;
 import com.microcold.hosts.utils.SystemUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -22,10 +20,7 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 /*
@@ -175,8 +170,8 @@ public class Config {
         return fileList;
     }
 
-    public static File getCommonHostFile(){
-        return new File(userSettingFile, getConfigBean().getCommonHostsFileName());
+    public static File getCommonHostFile() throws IOException {
+        return new File(getHostsFileRoot(), getConfigBean().getCommonHostsFileName());
     }
 
     /**
@@ -241,7 +236,12 @@ public class Config {
             Config.adminPassword = adminPassword;
             return true;
         }
+        Config.adminPassword = "";
         return false;
+    }
+
+    public static boolean checkAdminPassword() {
+        return StringUtils.isNotBlank(adminPassword);
     }
 
     public static File getCacheFile(){

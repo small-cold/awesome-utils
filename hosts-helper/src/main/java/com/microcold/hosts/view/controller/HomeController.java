@@ -97,6 +97,10 @@ public class HomeController implements Initializable {
                 refreshCurrentHostsOperator(hostsOperatorProperty);
             }
             if (mouseEvent.getClickCount() == 2 && hostsOperatorProperty.getHostsOperator() != null) {
+                // 检查管理员密码
+                if (!Config.checkAdminPassword()){
+                    DialogUtils.createAdminDialog();
+                }
                 try {
                     HostsOperatorFactory.getSystemHostsOperator().switchTo(
                             HostsOperatorFactory.getCommonHostsOperator(),

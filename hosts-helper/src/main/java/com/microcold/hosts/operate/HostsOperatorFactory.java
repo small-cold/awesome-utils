@@ -3,12 +3,10 @@ package com.microcold.hosts.operate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.microcold.hosts.conf.Config;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +18,8 @@ public class HostsOperatorFactory {
 
     private static HostsOperator comHostsOperator;
 
+    private static Map<File, HostsOperator> hostsOperatorMap = Maps.newHashMap();
+
     public static HostsOperator getSystemHostsOperator()  {
         return SysHostsOperator.getInstance();
     }
@@ -28,13 +28,17 @@ public class HostsOperatorFactory {
         return build(Config.getHostsFileRoot());
     }
 
+    private static HostsOperator getHostsOperator(File file){
+        return hostsOperatorMap.computeIfAbsent(file, k -> new HostsOperator(file));
+    }
+
     private static HostsOperatorCategory build(File file) throws IOException {
         HostsOperatorCategory hostsOperatorCategory = new HostsOperatorCategory();
         List<HostsOperatorCategory> subCategoryList = Lists.newArrayList();
         hostsOperatorCategory.setName(file.getName());
         for (File subFile : Config.getHostsFileList(file)) {
             if (subFile.isFile()) {
-                hostsOperatorCategory.getHostsOperatorList().add(new HostsOperator(subFile));
+                hostsOperatorCategory.getHostsOperatorList().add(getHostsOperator(subFile));
             } else if (Config.isValidHostsCategory(subFile)) {
                 hostsOperatorCategory.setSort(100);
                 subCategoryList.add(build(subFile));
@@ -60,7 +64,7 @@ public class HostsOperatorFactory {
     public static HostsOperator getCommonHostsOperator() throws IOException {
         File file = Config.getCommonHostFile();
         if (file.exists() && file.isFile()){
-            comHostsOperator = new HostsOperator(file);
+            comHostsOperator = getHostsOperator(file);
         }
         return comHostsOperator;
     }

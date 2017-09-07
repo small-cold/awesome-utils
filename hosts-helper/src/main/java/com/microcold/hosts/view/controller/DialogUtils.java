@@ -13,6 +13,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.io.PrintWriter;
@@ -70,10 +71,14 @@ public class DialogUtils {
         textInput.getDialogPane().setContentText("密码:");
         textInput.show();
         textInput.setOnHidden(event -> {
-            if (textInput.getResult().isEmpty()) {
-                createAlert("管理员密码不能为空", Alert.AlertType.WARNING);
+            if (StringUtils.isBlank(textInput.getResult())) {
+                createAlert("管理员密码为空",
+                        "系统Hosts为只读状态，双击不能快速切换系统hosts", Alert.AlertType.WARNING);
             } else {
-                Config.setAdminPassword(textInput.getResult());
+                boolean result = Config.setAdminPassword(textInput.getResult());
+                if (!result){
+                    createAdminDialog();
+                }
             }
         });
         return textInput;
@@ -91,14 +96,14 @@ public class DialogUtils {
         DialogUtils.stage = stage;
     }
 
-    public static Alert createAlert(String contentText, Alert.AlertType type) {
-        Alert alert = new Alert(type, contentText);
+    public static Alert createAlert(String title, String msg, Alert.AlertType type) {
+        Alert alert = new Alert(type, msg);
         alert.initModality(Modality.APPLICATION_MODAL);
         if (stage != null) {
             alert.initOwner(stage);
         }
-        alert.getDialogPane().setContentText(type + " text.");
-        alert.getDialogPane().setHeaderText(null);
+        alert.getDialogPane().setHeaderText(title);
+        // alert.getDialogPane().setContentText(msg);
         alert.showAndWait()
                 .filter(response -> response == ButtonType.OK)
                 .ifPresent(response -> System.out.println("The alert was approved"));

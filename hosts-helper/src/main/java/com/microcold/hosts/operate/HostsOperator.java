@@ -5,7 +5,6 @@ import com.microcold.hosts.utils.IPDomainUtil;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -15,7 +14,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +25,6 @@ import java.util.Set;
 public class HostsOperator {
     protected static final Logger LOGGER = Logger.getLogger(HostsOperator.class);
 
-    @Getter
     @Setter
     private List<HostBean> hostBeanList;
 
@@ -59,12 +56,19 @@ public class HostsOperator {
     public HostsOperator(File file, String name) {
         this.file = file;
         this.name = name;
-        this.hostBeanList = Collections.emptyList();
     }
 
     public boolean isOnlyRead(){
         return false;
     }
+
+    public List<HostBean> getHostBeanList() {
+        if (hostBeanList == null){
+            throw new Error("HostsOperator not be init, please call init()");
+        }
+        return hostBeanList;
+    }
+
 
     public HostsOperator init(){
         setDisable(false);
@@ -93,7 +97,7 @@ public class HostsOperator {
             return hostBeanList;
         }
         try (BufferedReader bufferedReader = new BufferedReader(reader)) {
-            String line = null;
+            String line;
             while ((line = bufferedReader.readLine()) != null) {
                 for (HostBean hostBean : HostBean.build(line)) {
                     hostBean.setId(hostBeanList.size());
@@ -114,7 +118,7 @@ public class HostsOperator {
      */
     public void flush() throws IOException {
         try (FileWriter fileWriter = new FileWriter(file)) {
-            for (HostBean hostBean : hostBeanList) {
+            for (HostBean hostBean : getHostBeanList()) {
                 fileWriter.write(hostBean.toString() + "\n");
             }
             setChanged(false);
@@ -234,8 +238,7 @@ public class HostsOperator {
         }
         List<HostBean> newHostBeanList = Lists.newArrayList();
         for (HostsOperator hostsOperator : hostsOperators) {
-            if (hostsOperator == null
-                    || CollectionUtils.isEmpty(hostsOperator.getHostBeanList())) {
+            if (hostsOperator == null) {
                 continue;
             }
             for (HostBean hostBean : hostsOperator.getHostBeanList()) {
