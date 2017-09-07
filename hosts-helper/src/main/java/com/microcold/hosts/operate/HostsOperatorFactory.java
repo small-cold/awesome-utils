@@ -65,6 +65,7 @@ public class HostsOperatorFactory {
         File file = Config.getCommonHostFile();
         if (file.exists() && file.isFile()){
             comHostsOperator = getHostsOperator(file);
+            comHostsOperator.init();
         }
         return comHostsOperator;
     }

@@ -20,6 +20,7 @@ public class SysHostsOperator extends HostsOperator {
     public static SysHostsOperator getInstance(){
         if (instance == null){
             instance = new SysHostsOperator();
+            instance.setName("当前配置");
         }
         return instance;
     }

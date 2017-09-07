@@ -48,6 +48,10 @@ public class HomeController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         initMenu(location, resources);
+        hostsFileTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            // 应该在这里调用
+            refreshCurrentHostsOperator(observable.getValue().getValue());
+        });
         hostsFileTreeView.init();
         hostsTableView.refreshData();
     }
@@ -89,16 +93,15 @@ public class HomeController implements Initializable {
     @FXML
     public void refreshHostsTable(MouseEvent mouseEvent) {
         // 单击，刷新table
-        if (mouseEvent.getSource() == hostsFileTreeView
-                && hostsFileTreeView.getSelectionModel().getSelectedItem() != null) {
+        if (mouseEvent.getSource() == hostsFileTreeView) {
+            if (hostsFileTreeView.getSelectionModel().getSelectedItem() == null) {
+                return;
+            }
             HostsOperatorProperty hostsOperatorProperty = hostsFileTreeView.getSelectionModel().getSelectedItem()
                     .getValue();
-            if (mouseEvent.getClickCount() == 1) {
-                refreshCurrentHostsOperator(hostsOperatorProperty);
-            }
             if (mouseEvent.getClickCount() == 2 && hostsOperatorProperty.getHostsOperator() != null) {
                 // 检查管理员密码
-                if (!Config.checkAdminPassword()){
+                if (!Config.checkAdminPassword()) {
                     DialogUtils.createAdminDialog();
                 }
                 try {
@@ -106,9 +109,14 @@ public class HomeController implements Initializable {
                             HostsOperatorFactory.getCommonHostsOperator(),
                             hostsOperatorProperty.getHostsOperator());
                     // TODO 自动备份
-                    if (HostsOperatorFactory.getSystemHostsOperator().isChanged()){
+                    if (HostsOperatorFactory.getSystemHostsOperator().isChanged()) {
                         HostsOperatorFactory.getSystemHostsOperator().flush();
                         messageLabel.setText("当前使用【" + hostsOperatorProperty.getHostsOperator().getName() + "】");
+                        hostsFileTreeView.selectSysHostsItem(() -> {
+                            hostsTableView.setHostsOperator(HostsOperatorFactory.getSystemHostsOperator());
+                            hostsTableView.refreshData();
+                            return HostsOperatorFactory.getSystemHostsOperator();
+                        });
                     }
                 } catch (IOException e) {
                     DialogUtils.createDialogCheckPermission(e);
