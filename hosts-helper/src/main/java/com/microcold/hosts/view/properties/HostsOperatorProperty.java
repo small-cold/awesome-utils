@@ -1,4 +1,4 @@
-package com.microcold.hosts.view.controller;
+package com.microcold.hosts.view.properties;
 
 import com.microcold.hosts.operate.HostsOperator;
 import com.microcold.hosts.operate.HostsOperatorCategory;

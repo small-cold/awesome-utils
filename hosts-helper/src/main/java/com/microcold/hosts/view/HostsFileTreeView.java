@@ -1,8 +1,9 @@
-package com.microcold.hosts.view.controller;
+package com.microcold.hosts.view;
 
 import com.microcold.hosts.operate.HostsOperator;
 import com.microcold.hosts.operate.HostsOperatorCategory;
 import com.microcold.hosts.operate.HostsOperatorFactory;
+import com.microcold.hosts.view.properties.HostsOperatorProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;

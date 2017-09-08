@@ -1,9 +1,10 @@
-package com.microcold.hosts.view.controller;
+package com.microcold.hosts.view;
 
 import com.google.common.collect.Lists;
 import com.microcold.hosts.operate.HostBean;
 import com.microcold.hosts.operate.HostsOperator;
 import com.microcold.hosts.operate.HostsOperatorFactory;
+import com.microcold.hosts.view.properties.HostProperty;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,7 +19,6 @@ import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -90,7 +90,7 @@ public class HostsTableView extends TableView<HostProperty> {
                     hostsOperator.flush();
                 }
             } catch (IOException e) {
-                LOGGER.error("保存hosts状态失败", e);
+                LOGGER.error("保存hosts IP 失败", e);
                 DialogUtils.createDialogCheckPermission(e);
             }
         });
@@ -108,7 +108,7 @@ public class HostsTableView extends TableView<HostProperty> {
                     hostsOperator.flush();
                 }
             } catch (IOException e) {
-                LOGGER.error("保存hosts状态失败", e);
+                LOGGER.error("保存hosts 域名失败", e);
                 DialogUtils.createDialogCheckPermission(e);
             }
         });
@@ -126,7 +126,7 @@ public class HostsTableView extends TableView<HostProperty> {
                             hostsOperator.flush();
                         }
                     } catch (IOException e) {
-                        LOGGER.error("保存hosts状态失败", e);
+                        LOGGER.error("保存hosts备注失败", e);
                         DialogUtils.createDialogCheckPermission(e);
                     }
                 });

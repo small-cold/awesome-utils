@@ -1,4 +1,4 @@
-package com.microcold.hosts.view.controller;
+package com.microcold.hosts.view;
 
 import com.microcold.hosts.conf.Config;
 import com.microcold.hosts.exception.PermissionIOException;
@@ -8,7 +8,6 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Modality;
@@ -30,7 +29,6 @@ public class DialogUtils {
     public static Dialog<ButtonType> createExceptionDialog(String title, Throwable th) {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle(title);
-
         final DialogPane dialogPane = dialog.getDialogPane();
         dialogPane.setContentText("详情:");
         dialogPane.getButtonTypes().addAll(ButtonType.OK);
@@ -66,12 +64,15 @@ public class DialogUtils {
     }
 
     public static Dialog createAdminDialog() {
-        TextInputDialog textInput = new TextInputDialog("");
+        PasswordDialog textInput = new PasswordDialog();
         textInput.setTitle("请输入管理员密码（" + System.getProperty("user.name") + ")");
         textInput.getDialogPane().setContentText("密码:");
         textInput.show();
         textInput.setOnHidden(event -> {
-            if (StringUtils.isBlank(textInput.getResult())) {
+            if (!event.isConsumed()){
+                createAlert("管理员密码",
+                        "系统Hosts为只读状态，双击不能快速切换系统hosts", Alert.AlertType.WARNING);
+            }else if (StringUtils.isBlank(textInput.getResult())) {
                 createAlert("管理员密码为空",
                         "系统Hosts为只读状态，双击不能快速切换系统hosts", Alert.AlertType.WARNING);
             } else {

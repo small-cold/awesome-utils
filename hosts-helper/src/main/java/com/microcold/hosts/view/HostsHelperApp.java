@@ -3,55 +3,55 @@ package com.microcold.hosts.view;
  * Created by MicroCold on 2017/9/4.
  */
 
-import com.google.common.collect.Lists;
-import com.microcold.hosts.view.controller.DialogUtils;
-import com.microcold.hosts.view.controller.HomeController;
-import com.microcold.hosts.operate.HostBean;
-import com.microcold.hosts.operate.HostsOperator;
-import com.microcold.hosts.operate.HostsOperatorFactory;
-import com.microcold.hosts.view.controller.HostProperty;
+import com.microcold.hosts.conf.Config;
+import com.microcold.hosts.conf.ConfigBean;
+import com.microcold.hosts.view.controller.HomePageController;
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.fxml.JavaFXBuilderFactory;
-import javafx.scene.Parent;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToolBar;
-import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.log4j.Logger;
 
-import java.io.FileNotFoundException;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.io.Reader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.util.logging.Level;
 
 public class HostsHelperApp extends Application {
 
-    private final Label sysMenuLabel = new Label("Using System Menu");
+    private static final int TOOL_BAR_BUTTON_SIZE = 30;
+    private static final String HOME_PAGE_FXML = "views/Home.fxml";
 
-    private static final boolean SHOW_MENU = false;
+    private Scene scene;
     private Pane root;
-    private Button backButton;
-    private Button forwardButton;
-    private Button homeButton;
-    private ToggleButton listButton;
-    private ToggleButton searchButton;
+    private TitledToolBar toolBar;
+
     private MenuBar menuBar;
+    private final SearchBox searchBox = new SearchBox();
+
+    private AnchorPane homePane;
+    private HomePageController homePageController;
 
     public static void main(String[] args) {
         launch(args);
@@ -65,93 +65,148 @@ public class HostsHelperApp extends Application {
                 super.layoutChildren();
                 final double w = getWidth();
                 final double h = getHeight();
-                final double menuHeight = SHOW_MENU ? menuBar.prefHeight(w) : 0;
+                final double menuHeight = menuBar.prefHeight(w);
+                final double toolBarHeight = toolBar.prefHeight(w);
                 if (menuBar != null) {
                     menuBar.resize(w, menuHeight);
                 }
+                toolBar.resizeRelocate(0, menuHeight, w, toolBarHeight);
+                homePane.setLayoutY(toolBarHeight + menuHeight + 5);
+                // homePane.resize(w, h - toolBarHeight);
+                homePane.resize(w, h - toolBarHeight - menuHeight);
+                // homePane.resizeRelocate(0,toolBarHeight + menuHeight + 5, w, h - toolBarHeight - menuHeight);
+
             }
         };
-    }
-
-    @Override
-    public void start(Stage primaryStage) {
-        primaryStage.setResizable(false);
-        primaryStage.setScene(new Scene(createContent()));
-        primaryStage.show();
-    }
-    public Parent createContent() {
-        gotoHome();
-        return root;
-    }
-
-    private void gotoHome() {
+        root.setMinHeight(720);
+        root.setMinHeight(480);
+        initSysMenu();
+        initToolBar();
         try {
-            HomeController login = (HomeController) replaceSceneContent("Home.fxml");
-            // login.setApp(this);
+            initHomePage();
         } catch (Exception ex) {
             Logger.getLogger(HostsHelperApp.class.getName()).error(null, ex);
         }
     }
 
-    private Initializable replaceSceneContent(String fxml) throws Exception {
-        fxml = "views/" + fxml;
+    private void initToolBar() {
+        // CREATE TOOLBAR
+        toolBar = new TitledToolBar();
+        root.getChildren().add(toolBar);
+        Button backButton = new Button();
+        backButton.setId("back");
+        backButton.getStyleClass().add("left-pill");
+        backButton.setPrefSize(TOOL_BAR_BUTTON_SIZE, TOOL_BAR_BUTTON_SIZE);
+        Button forwardButton = new Button();
+        forwardButton.setId("forward");
+        forwardButton.getStyleClass().add("center-pill");
+        forwardButton.setPrefSize(TOOL_BAR_BUTTON_SIZE, TOOL_BAR_BUTTON_SIZE);
+        Button homeButton = new Button();
+        homeButton.setId("home");
+        homeButton.setPrefSize(TOOL_BAR_BUTTON_SIZE, TOOL_BAR_BUTTON_SIZE);
+        homeButton.getStyleClass().add("right-pill");
+        HBox navButtons = new HBox(0, backButton, forwardButton, homeButton);
+        ToggleButton listButton = new ToggleButton();
+        listButton.setId("list");
+        listButton.setPrefSize(TOOL_BAR_BUTTON_SIZE, TOOL_BAR_BUTTON_SIZE);
+        HBox.setMargin(listButton, new Insets(0, 0, 0, 7));
+        ToggleButton searchButton = new ToggleButton();
+        searchButton.setId("search");
+        searchButton.setPrefSize(TOOL_BAR_BUTTON_SIZE, TOOL_BAR_BUTTON_SIZE);
+        searchBox.setPrefWidth(200);
+        backButton.setGraphic(new Region());
+        forwardButton.setGraphic(new Region());
+        homeButton.setGraphic(new Region());
+        listButton.setGraphic(new Region());
+        searchButton.setGraphic(new Region());
+        toolBar.addLeftItems(navButtons, listButton);
+        toolBar.addRightItems(searchBox);
+    }
+
+    private void initSysMenu(){
+        menuBar = new MenuBar();
+        menuBar.setUseSystemMenuBar(true);
+        Menu fileMenu = new Menu("文件");
+        fileMenu.getItems().addAll(
+                new MenuItem("新增"),
+                new MenuItem("保存"),
+                new SeparatorMenuItem(),
+                new MenuItem("另存为"),
+                new SeparatorMenuItem(),
+                new MenuItem("导出配置"),
+                new SeparatorMenuItem(),
+                new MenuItem("退出")
+        );
+        menuBar.getMenus().add(fileMenu);
+        Menu optionsMenu = new Menu("配置");
+        CheckMenuItem autoBackupMenuItem = new CheckMenuItem("自动备份");
+        autoBackupMenuItem.setSelected(BooleanUtils.isTrue(Config.getConfigBean().getAutoBackup()));
+        autoBackupMenuItem.setOnAction(event -> {
+            ConfigBean configBean = Config.getConfigBean();
+            configBean.setAutoBackup(autoBackupMenuItem.isSelected());
+            Config.saveConfig(configBean);
+        });
+        optionsMenu.getItems().addAll(
+                autoBackupMenuItem,
+                new MenuItem("系统配置")
+        );
+        menuBar.getMenus().add(optionsMenu);
+        root.getChildren().add(menuBar);
+    }
+
+    private void initHomePage() throws Exception {
         FXMLLoader loader = new FXMLLoader();
-        InputStream in = HostsHelperApp.class.getClassLoader().getResourceAsStream(fxml);
+        InputStream in = HostsHelperApp.class.getClassLoader().getResourceAsStream(HOME_PAGE_FXML);
         loader.setBuilderFactory(new JavaFXBuilderFactory());
-        loader.setLocation(HostsHelperApp.class.getClassLoader().getResource(fxml));
-        BorderPane page;
+        loader.setLocation(HostsHelperApp.class.getClassLoader().getResource(HOME_PAGE_FXML));
         try {
-            page = loader.load(in);
+            homePane = loader.load(in);
+            homePageController = loader.getController();
         } finally {
             in.close();
         }
-        // root.getChildren().removeAll();
-        root.getChildren().addAll(page);
-        return (Initializable) loader.getController();
+        root.getChildren().add(0, homePane);
     }
 
-    public Parent createMenu() {
-        BorderPane borderPane = new BorderPane();
-        //Top comment
-        ToolBar toolbar = new ToolBar();
-        toolbar.getItems().add(new Button("Home"));
-        toolbar.getItems().add(new Button("Options"));
-        toolbar.getItems().add(new Button("Help"));
-        borderPane.setTop(toolbar);
-
-        //Left comment
-        Label label1 = new Label("Left hand");
-        Button leftButton = new Button("left");
-        VBox leftVbox = new VBox();
-        leftVbox.getChildren().addAll(label1, leftButton);
-        borderPane.setLeft(leftVbox);
-
-        //Right comment
-        Label rightlabel1 = new Label("Right hand");
-        Button rightButton = new Button("right");
-
-        // VBox rightVbox = new VBox();
-        // rightVbox.getChildren().addAll(rightlabel1, rightButton);
-        // borderPane.setRight(rightVbox);
-
-        //Center comment
-        Label centerLabel = new Label("Center area.");
-        centerLabel.setWrapText(true);
-        // ImageView imageView = new ImageView(ICON_48);
-
-        //Using AnchorPane only to position items in the center
-        AnchorPane centerAP = new AnchorPane();
-        AnchorPane.setTopAnchor(centerLabel, Double.valueOf(50));
-        AnchorPane.setLeftAnchor(centerLabel, Double.valueOf(200));
-        // AnchorPane.setTopAnchor(imageView, Double.valueOf(40));
-        // AnchorPane.setLeftAnchor(imageView, Double.valueOf(30));
-        // centerAP.getChildren().addAll(createHostTable());
-        borderPane.setCenter(centerAP);
-
-        //Bottom comment
-        // Label bottomLabel = new Label("At the bottom.");
-        // borderPane.setBottom(bottomLabel);
-        borderPane.autosize();
-        return borderPane;
+    @Override
+    public void start(Stage stage) {
+        scene = new Scene(root, 720, 480, Color.BLACK);
+        setStylesheets();
+        stage.setScene(scene);
+        // stage.setResizable(true);
+        stage.setTitle("Hosts 助手");
+        stage.show();
     }
+
+    private void setStylesheets() {
+        final String EXTERNAL_STYLESHEET = "http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600";
+        scene.getStylesheets().setAll("/css/HostsHelper.css");
+        Thread backgroundThread = new Thread(() -> {
+            try {
+                URL url = new URL(EXTERNAL_STYLESHEET);
+                try (
+                        ReadableByteChannel rbc = Channels.newChannel(url.openStream());
+                        Reader newReader = Channels.newReader(rbc, "UTF-8");
+                        BufferedReader bufferedReader = new BufferedReader(newReader)
+                ) {
+                    // Checking whether we can read a line from this url
+                    // without exception
+                    bufferedReader.readLine();
+                }
+                Platform.runLater(() -> {
+                    // when succeeded add this stylesheet to the scene
+                    scene.getStylesheets().add(EXTERNAL_STYLESHEET);
+                });
+            }catch (MalformedURLException ex) {
+                java.util.logging.Logger
+                        .getLogger(HostsHelperApp.class.getName()).log(Level.FINE, "Failed to load external stylesheet", ex);
+            }catch (IOException ex) {
+                java.util.logging.Logger
+                        .getLogger(HostsHelperApp.class.getName()).log(Level.FINE, "Failed to load external stylesheet", ex);
+            }
+        }, "Trying to reach external styleshet");
+        backgroundThread.setDaemon(true);
+        backgroundThread.start();
+    }
+
 }
