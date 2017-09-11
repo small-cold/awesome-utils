@@ -74,7 +74,7 @@ public class HostsHelperApp extends Application {
                 homePane.setLayoutY(toolBarHeight + menuHeight + 5);
                 // homePane.resize(w, h - toolBarHeight);
                 homePane.resize(w, h - toolBarHeight - menuHeight);
-                // homePane.resizeRelocate(0,toolBarHeight + menuHeight + 5, w, h - toolBarHeight - menuHeight);
+                homePane.resizeRelocate(0,toolBarHeight + menuHeight + 5, w, h - toolBarHeight - menuHeight);
 
             }
         };
