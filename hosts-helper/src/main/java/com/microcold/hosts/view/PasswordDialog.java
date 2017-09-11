@@ -39,11 +39,13 @@ public class PasswordDialog extends Dialog<String> {
      * dialog {@link PasswordField}.
      */
     public PasswordDialog() {
+        super();
         final DialogPane dialogPane = getDialogPane();
 
         // -- textfield
         this.passwordField = new PasswordField();
         this.passwordField.setMaxWidth(Double.MAX_VALUE);
+        this.passwordField.setPromptText("Your password");
         GridPane.setHgrow(passwordField, Priority.ALWAYS);
         GridPane.setFillWidth(passwordField, true);
 

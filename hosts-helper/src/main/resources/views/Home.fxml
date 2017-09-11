@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import com.microcold.hosts.view.HostsFileTreeView?>
-<?import com.microcold.hosts.view.HostsTableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TreeItem?>
+<?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -12,11 +15,42 @@
     <BorderPane>
         <left>
             <VBox>
-                <HostsFileTreeView fx:id="hostsFileTreeView" maxWidth="120" onMouseClicked="#refreshHostsTable"/>
+                <TreeView fx:id="hostsFileTreeView" maxWidth="120" onMouseClicked="#refreshHostsTable" editable="true">
+                    <TreeItem fx:id="rootTreeItem">
+                        <children>
+                            <TreeItem fx:id="sysHostsOperatorTreeItem"/>
+                        </children>
+                    </TreeItem>
+                </TreeView>
             </VBox>
         </left>
         <center>
-            <HostsTableView fx:id="hostsTableView" minWidth="600" minHeight="400"/>
+            <TableView fx:id="hostsTableView" minWidth="600" minHeight="400" editable="true">
+                <columns>
+                    <TableColumn text="启用" prefWidth="50" fx:id="enableCol">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="enable"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="IP" prefWidth="150" onEditCommit="#saveIP" fx:id="ipCol">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="ip"/>
+                        </cellValueFactory>
+                        <cellFactory>
+                        </cellFactory>
+                    </TableColumn>
+                    <TableColumn text="域名" prefWidth="150" onEditCommit="#saveDomain" fx:id="domainCol">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="domain"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="备注" prefWidth="150" onEditCommit="#saveComment" fx:id="commentCol">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="comment"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                </columns>
+            </TableView>
         </center>
         <bottom>
             <HBox>

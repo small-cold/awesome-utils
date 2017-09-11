@@ -5,13 +5,17 @@ package com.microcold.hosts.view;
 
 import com.microcold.hosts.conf.Config;
 import com.microcold.hosts.conf.ConfigBean;
+import com.microcold.hosts.exception.PermissionIOException;
 import com.microcold.hosts.view.controller.HomePageController;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
@@ -25,8 +29,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -52,6 +57,29 @@ public class HostsHelperApp extends Application {
 
     private AnchorPane homePane;
     private HomePageController homePageController;
+    private PasswordDialog passwordDialog;
+
+    private ObjectProperty<Callback<Throwable, Integer>> callBack;
+
+    public Callback<Throwable, Integer> getCallBack() {
+        return callBack.get();
+    }
+
+    public ObjectProperty<Callback<Throwable, Integer>> callBackProperty() {
+        if (callBack == null){
+            callBack = new SimpleObjectProperty<>();
+            callBack.setValue(th -> {
+                if (th == null || th instanceof PermissionIOException) {
+                    passwordDialog.show();
+                    return 0;
+                } else {
+                    DialogUtils.createExceptionDialog("未知错误", th);
+                    return 9;
+                }
+            });
+        }
+        return callBack;
+    }
 
     public static void main(String[] args) {
         launch(args);
@@ -74,7 +102,7 @@ public class HostsHelperApp extends Application {
                 homePane.setLayoutY(toolBarHeight + menuHeight + 5);
                 // homePane.resize(w, h - toolBarHeight);
                 homePane.resize(w, h - toolBarHeight - menuHeight);
-                homePane.resizeRelocate(0,toolBarHeight + menuHeight + 5, w, h - toolBarHeight - menuHeight);
+                homePane.resizeRelocate(0, toolBarHeight + menuHeight + 5, w, h - toolBarHeight - menuHeight);
 
             }
         };
@@ -82,11 +110,30 @@ public class HostsHelperApp extends Application {
         root.setMinHeight(480);
         initSysMenu();
         initToolBar();
-        try {
-            initHomePage();
-        } catch (Exception ex) {
-            Logger.getLogger(HostsHelperApp.class.getName()).error(null, ex);
-        }
+        initHomePage();
+    }
+
+    private void initAdminPasswordDialog() {
+        passwordDialog = new PasswordDialog();
+        passwordDialog.setTitle("请输入管理员密码（" + System.getProperty("user.name") + ")");
+        passwordDialog.getDialogPane().setContentText("密码:");
+        passwordDialog.show();
+        passwordDialog.setOnHidden(event -> {
+            // if (!event.isConsumed()){
+            //     createAlert("管理员密码",
+            //             "系统Hosts为只读状态，双击不能快速切换系统hosts", Alert.AlertType.WARNING);
+            // }else
+            if (StringUtils.isBlank(passwordDialog.getResult())) {
+                DialogUtils.createAlert("管理员密码为空",
+                        "系统Hosts为只读状态，双击不能快速切换系统hosts", Alert.AlertType.WARNING);
+            } else {
+                boolean result = Config.setAdminPassword(passwordDialog.getResult());
+                if (!result) {
+                    passwordDialog.setTitle("密码错误（" + System.getProperty("user.name") + ")");
+                    passwordDialog.show();
+                }
+            }
+        });
     }
 
     private void initToolBar() {
@@ -123,7 +170,7 @@ public class HostsHelperApp extends Application {
         toolBar.addRightItems(searchBox);
     }
 
-    private void initSysMenu(){
+    private void initSysMenu() {
         menuBar = new MenuBar();
         menuBar.setUseSystemMenuBar(true);
         Menu fileMenu = new Menu("文件");
@@ -154,16 +201,16 @@ public class HostsHelperApp extends Application {
         root.getChildren().add(menuBar);
     }
 
-    private void initHomePage() throws Exception {
+    private void initHomePage(){
         FXMLLoader loader = new FXMLLoader();
-        InputStream in = HostsHelperApp.class.getClassLoader().getResourceAsStream(HOME_PAGE_FXML);
         loader.setBuilderFactory(new JavaFXBuilderFactory());
         loader.setLocation(HostsHelperApp.class.getClassLoader().getResource(HOME_PAGE_FXML));
-        try {
+        try (InputStream in = HostsHelperApp.class.getClassLoader().getResourceAsStream(HOME_PAGE_FXML)) {
             homePane = loader.load(in);
             homePageController = loader.getController();
-        } finally {
-            in.close();
+            homePageController.setCallbackObjectProperty(callBackProperty());
+        }catch (Exception e){
+            DialogUtils.createExceptionDialog("加载主页异常", e);
         }
         root.getChildren().add(0, homePane);
     }
@@ -176,6 +223,7 @@ public class HostsHelperApp extends Application {
         // stage.setResizable(true);
         stage.setTitle("Hosts 助手");
         stage.show();
+        initAdminPasswordDialog();
     }
 
     private void setStylesheets() {
@@ -197,12 +245,14 @@ public class HostsHelperApp extends Application {
                     // when succeeded add this stylesheet to the scene
                     scene.getStylesheets().add(EXTERNAL_STYLESHEET);
                 });
-            }catch (MalformedURLException ex) {
+            } catch (MalformedURLException ex) {
                 java.util.logging.Logger
-                        .getLogger(HostsHelperApp.class.getName()).log(Level.FINE, "Failed to load external stylesheet", ex);
-            }catch (IOException ex) {
+                        .getLogger(HostsHelperApp.class.getName())
+                        .log(Level.FINE, "Failed to load external stylesheet", ex);
+            } catch (IOException ex) {
                 java.util.logging.Logger
-                        .getLogger(HostsHelperApp.class.getName()).log(Level.FINE, "Failed to load external stylesheet", ex);
+                        .getLogger(HostsHelperApp.class.getName())
+                        .log(Level.FINE, "Failed to load external stylesheet", ex);
             }
         }, "Trying to reach external styleshet");
         backgroundThread.setDaemon(true);
