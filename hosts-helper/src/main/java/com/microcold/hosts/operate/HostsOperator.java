@@ -134,10 +134,17 @@ public class HostsOperator {
      * @param domain
      * @return
      */
-    public List<HostBean> lookupByDomain(String domain) {
+    public List<HostBean> search(String key) {
         List<HostBean> matchHostBeanList = Lists.newArrayList();
+        boolean isDiable = key.startsWith("#");
+        List<String> domainList = IPDomainUtil.getDomainList(key);
         for (HostBean hostBean : getHostBeanList()) {
-            if (hostBean.isValid() && hostBean.getDomain().equals(domain)) {
+            if (StringUtils.isBlank(hostBean.getDomain())
+                    || isDiable && hostBean.isEnable()){
+                continue;
+            }
+            if (domainList.contains(hostBean.getDomain())
+                    || hostBean.getDomain().contains(key)) {
                 matchHostBeanList.add(hostBean);
             }
         }

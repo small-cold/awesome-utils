@@ -1,6 +1,7 @@
 package com.microcold.hosts.view.controller;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.microcold.hosts.conf.Config;
 import com.microcold.hosts.operate.HostBean;
 import com.microcold.hosts.operate.HostsOperator;
@@ -9,6 +10,7 @@ import com.microcold.hosts.operate.HostsOperatorFactory;
 import com.microcold.hosts.view.DialogUtils;
 import com.microcold.hosts.view.properties.HostProperty;
 import com.microcold.hosts.view.properties.HostsOperatorProperty;
+import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
@@ -30,11 +32,14 @@ import javafx.util.StringConverter;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 
@@ -83,7 +88,7 @@ public class HomePageController implements Initializable {
     private ObjectProperty<Callback<Throwable, Integer>> callbackObjectProperty;
 
     public HostsOperator getHostsOperator() {
-        if (hostsOperator == null){
+        if (hostsOperator == null) {
             hostsOperator = HostsOperatorFactory.getSystemHostsOperator();
         }
         return hostsOperator;
@@ -269,5 +274,33 @@ public class HomePageController implements Initializable {
         data.addAll(hostList);
         hostsTableView.setItems(data);
         hostsTableView.refresh();
+    }
+
+    public Map<HostsOperator, List<HostBean>> search(String key) {
+        if (StringUtils.isBlank(key)) {
+            return Collections.emptyMap();
+        }
+        Map<HostsOperator, List<HostBean>> result = Maps.newLinkedHashMap();
+        result.put(getHostsOperator(), getHostsOperator().search(key));
+        return result;
+    }
+
+    public void getToItem(Integer id) {
+        if (id != null && id >= 0 && CollectionUtils.isNotEmpty(hostList)){
+            int index = 0;
+            for (HostProperty hostProperty : hostList){
+                if (hostProperty.idProperty().get() == id){
+                    hostsTableView.getSelectionModel().select(hostProperty);
+                    hostsTableView.scrollTo(index > 6 ? index - 2: 0);
+                    // hostsTableView.getFocusModel().focus(index);
+                    hostsTableView.setFocusTraversable(true);
+                    Platform.runLater(() -> {
+                        hostsTableView.requestFocus();
+                    });
+                    break;
+                }
+                index ++;
+            }
+        }
     }
 }

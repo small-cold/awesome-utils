@@ -137,7 +137,7 @@ public class HostsCommand {
 
     private static void switchByDomain(String domain, boolean disabled) throws IOException {
         HostsOperator hostsOperator = HostsOperatorFactory.getSystemHostsOperator().init();
-        List<HostBean> hostBeanList = hostsOperator.lookupByDomain(domain);
+        List<HostBean> hostBeanList = hostsOperator.search(domain);
         int index = 0;
         for (HostBean hostBean : hostBeanList) {
             logger.info(index + ". " + (hostBean.isEnable() ? "[启用]" : "[禁用]")

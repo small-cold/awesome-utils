@@ -14,6 +14,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -54,6 +55,7 @@ public class HostsHelperApp extends Application {
 
     private MenuBar menuBar;
     private final SearchBox searchBox = new SearchBox();
+    private SearchPopover searchPopover;
 
     private AnchorPane homePane;
     private HomePageController homePageController;
@@ -104,6 +106,9 @@ public class HostsHelperApp extends Application {
                 homePane.resize(w, h - toolBarHeight - menuHeight);
                 homePane.resizeRelocate(0, toolBarHeight + menuHeight + 5, w, h - toolBarHeight - menuHeight);
 
+                Point2D searchBoxBottomCenter = searchBox.localToScene(searchBox.getWidth()/2, searchBox.getHeight());
+                searchPopover.setLayoutX((int)searchBoxBottomCenter.getX()-searchPopover.getLayoutBounds().getWidth()+50);
+                searchPopover.setLayoutY((int)searchBoxBottomCenter.getY()+20);
             }
         };
         root.setMinHeight(720);
@@ -111,13 +116,16 @@ public class HostsHelperApp extends Application {
         initSysMenu();
         initToolBar();
         initHomePage();
+
+        searchPopover = new SearchPopover(searchBox, homePageController);
+        root.getChildren().add(searchPopover);
     }
 
     private void initAdminPasswordDialog() {
         passwordDialog = new PasswordDialog();
         passwordDialog.setTitle("请输入管理员密码（" + System.getProperty("user.name") + ")");
         passwordDialog.getDialogPane().setContentText("密码:");
-        passwordDialog.show();
+        // passwordDialog.show();
         passwordDialog.setOnHidden(event -> {
             // if (!event.isConsumed()){
             //     createAlert("管理员密码",
@@ -168,6 +176,7 @@ public class HostsHelperApp extends Application {
         searchButton.setGraphic(new Region());
         toolBar.addLeftItems(navButtons, listButton);
         toolBar.addRightItems(searchBox);
+
     }
 
     private void initSysMenu() {
