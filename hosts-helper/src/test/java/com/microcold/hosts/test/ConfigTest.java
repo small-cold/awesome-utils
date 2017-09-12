@@ -5,7 +5,6 @@ import com.microcold.hosts.conf.ConfigBean;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -23,13 +22,13 @@ public class ConfigTest {
     @Test
     public void testGetAllHostsOperator() throws IOException {
         List<File> hostsOperatorList = Config.getHostsFileList();
-        for (File hostsOperator: hostsOperatorList){
+        for (File hostsOperator : hostsOperatorList) {
             System.out.println(hostsOperator.getName());
         }
     }
 
     @Test
-    public void test(){
+    public void test() {
         System.out.println(System.getProperties().getProperty("user.home"));
     }
 }

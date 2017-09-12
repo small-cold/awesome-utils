@@ -2,6 +2,7 @@ package com.microcold.hosts.operate;
 
 import com.google.common.collect.Lists;
 import com.microcold.hosts.utils.IPDomainUtil;
+import com.microcold.hosts.view.controller.HostsSearchResult;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -14,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,19 +60,18 @@ public class HostsOperator {
         this.name = name;
     }
 
-    public boolean isOnlyRead(){
+    public boolean isOnlyRead() {
         return false;
     }
 
     public List<HostBean> getHostBeanList() {
-        if (hostBeanList == null){
+        if (hostBeanList == null) {
             throw new Error("HostsOperator not be init, please call init()");
         }
         return hostBeanList;
     }
 
-
-    public HostsOperator init(){
+    public HostsOperator init() {
         setDisable(false);
         setChanged(false);
         hostBeanList = readHostFile();
@@ -83,9 +84,9 @@ public class HostsOperator {
      * @param path hosts 文件地址
      * @return List<HostBean>
      */
-    public List<HostBean> readHostFile(){
+    public List<HostBean> readHostFile() {
         List<HostBean> hostBeanList = Lists.newArrayList();
-        if (isDisable()){
+        if (isDisable()) {
             return hostBeanList;
         }
         FileReader reader = null;
@@ -131,23 +132,38 @@ public class HostsOperator {
     /**
      * 根据域名找到已有的配置
      *
-     * @param domain
+     * @param key
      * @return
      */
-    public List<HostBean> search(String key) {
-        List<HostBean> matchHostBeanList = Lists.newArrayList();
-        boolean isDiable = key.startsWith("#");
+    public List<HostsSearchResult> search(String key) {
+        if (StringUtils.isBlank(key)){
+            return Collections.emptyList();
+        }
+        key = key.toLowerCase();
+        List<HostsSearchResult> matchHostBeanList = Lists.newArrayList();
+        boolean isDisable = key.startsWith("#");
         List<String> domainList = IPDomainUtil.getDomainList(key);
         for (HostBean hostBean : getHostBeanList()) {
             if (StringUtils.isBlank(hostBean.getDomain())
-                    || isDiable && hostBean.isEnable()){
+                    || isDisable && hostBean.isEnable()) {
                 continue;
             }
-            if (domainList.contains(hostBean.getDomain())
-                    || hostBean.getDomain().contains(key)) {
-                matchHostBeanList.add(hostBean);
+            if (domainList.contains(hostBean.getDomain())){
+                HostsSearchResult hostsSearchResult = new HostsSearchResult(this, hostBean);
+                hostsSearchResult.setScore(-1);
+                matchHostBeanList.add(hostsSearchResult);
+            }else if (hostBean.getDomain().toLowerCase().contains(key)) {
+                HostsSearchResult hostsSearchResult = new HostsSearchResult(this, hostBean);
+                hostsSearchResult.setScore(hostBean.getDomain().indexOf(key));
+                matchHostBeanList.add(hostsSearchResult);
             }
         }
+        matchHostBeanList.sort((result, resultOther) -> {
+            if (result.getScore() != resultOther.getScore()){
+                return result.getScore() - resultOther.getScore();
+            }
+            return result.getTitle().compareTo(resultOther.getTitle());
+        });
         return matchHostBeanList;
     }
 
@@ -252,13 +268,13 @@ public class HostsOperator {
                 if (hostBean.isValid() && newHostBeanList.contains(hostBean)) {
                     continue;
                 }
-                if (!isChanged){
+                if (!isChanged) {
                     isChanged = !getHostBeanList().contains(hostBean);
                 }
                 newHostBeanList.add(hostBean);
             }
         }
-        if (isChanged || newHostBeanList.size() != getHostBeanList().size()){
+        if (isChanged || newHostBeanList.size() != getHostBeanList().size()) {
             isChanged = true;
             setHostBeanList(newHostBeanList);
         }

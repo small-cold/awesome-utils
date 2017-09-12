@@ -68,7 +68,7 @@ import java.util.LinkedList;
  * inspecting the pref height of the current displayed page. At time this value is animated
  * (when switching from page to page).
  */
-public class Popover extends Region implements EventHandler<Event>{
+public class Popover extends Region implements EventHandler<Event> {
     private static final int PAGE_GAP = 15;
 
     /**
@@ -88,13 +88,14 @@ public class Popover extends Region implements EventHandler<Event>{
     private final Pane titlesPane = new Pane();
     private Text title; // the current title
     private final Rectangle titlesClipRect = new Rectangle();
-//    private final EventHandler<ScrollEvent> popoverScrollHandler;
+    //    private final EventHandler<ScrollEvent> popoverScrollHandler;
     private final EventHandler<MouseEvent> popoverHideHandler;
     private Runnable onHideCallback = null;
     private int maxPopupHeight = -1;
 
     private DoubleProperty popoverHeight = new SimpleDoubleProperty(400) {
-        @Override protected void invalidated() {
+        @Override
+        protected void invalidated() {
             requestLayout();
         }
     };
@@ -133,17 +134,18 @@ public class Popover extends Region implements EventHandler<Event>{
                 t.consume();
             }
         };
-//        popoverScrollHandler = new EventHandler<ScrollEvent>() {
-//            @Override public void handle(ScrollEvent t) {
-//                t.consume(); // consume all scroll events
-//            }
-//        };
+        //        popoverScrollHandler = new EventHandler<ScrollEvent>() {
+        //            @Override public void handle(ScrollEvent t) {
+        //                t.consume(); // consume all scroll events
+        //            }
+        //        };
     }
 
     /**
      * Handle mouse clicks on the left and right buttons.
      */
-    @Override public void handle(Event event) {
+    @Override
+    public void handle(Event event) {
         if (event.getSource() == leftButton) {
             pages.getFirst().handleLeftButton();
         } else if (event.getSource() == rightButton) {
@@ -151,7 +153,8 @@ public class Popover extends Region implements EventHandler<Event>{
         }
     }
 
-    @Override protected double computeMinWidth(double height) {
+    @Override
+    protected double computeMinWidth(double height) {
         Page page = pages.isEmpty() ? null : pages.getFirst();
         if (page != null) {
             Node n = page.getPageNode();
@@ -163,12 +166,14 @@ public class Popover extends Region implements EventHandler<Event>{
         return 200;
     }
 
-    @Override protected double computeMinHeight(double width) {
+    @Override
+    protected double computeMinHeight(double width) {
         Insets insets = getInsets();
         return insets.getLeft() + 100 + insets.getRight();
     }
 
-    @Override protected double computePrefWidth(double height) {
+    @Override
+    protected double computePrefWidth(double height) {
         Page page = pages.isEmpty() ? null : pages.getFirst();
         if (page != null) {
             Node n = page.getPageNode();
@@ -180,7 +185,8 @@ public class Popover extends Region implements EventHandler<Event>{
         return 400;
     }
 
-    @Override protected double computePrefHeight(double width) {
+    @Override
+    protected double computePrefHeight(double width) {
         double minHeight = minHeight(-1);
         double maxHeight = maxHeight(-1);
         double prefHeight = popoverHeight.get();
@@ -208,11 +214,13 @@ public class Popover extends Region implements EventHandler<Event>{
         return a <= b ? a : b;
     }
 
-    @Override protected double computeMaxWidth(double height) {
+    @Override
+    protected double computeMaxWidth(double height) {
         return Double.MAX_VALUE;
     }
 
-    @Override protected double computeMaxHeight(double width) {
+    @Override
+    protected double computeMaxHeight(double width) {
         Scene scene = getScene();
         if (scene != null) {
             return scene.getHeight() - 100;
@@ -221,17 +229,18 @@ public class Popover extends Region implements EventHandler<Event>{
         }
     }
 
-    @Override protected void layoutChildren() {
+    @Override
+    protected void layoutChildren() {
         if (maxPopupHeight == -1) {
-            maxPopupHeight = (int)getScene().getHeight()-100;
+            maxPopupHeight = (int) getScene().getHeight() - 100;
         }
         final Insets insets = getInsets();
-        final int width = (int)getWidth();
-        final int height = (int)getHeight();
-        final int top = (int)insets.getTop();
-        final int right = (int)insets.getRight();
-        final int bottom = (int)insets.getBottom();
-        final int left = (int)insets.getLeft();
+        final int width = (int) getWidth();
+        final int height = (int) getHeight();
+        final int top = (int) insets.getTop();
+        final int right = (int) insets.getRight();
+        final int bottom = (int) insets.getBottom();
+        final int left = (int) insets.getLeft();
 
         int pageWidth = width - left - right;
         int pageHeight = height - top - bottom;
@@ -248,13 +257,14 @@ public class Popover extends Region implements EventHandler<Event>{
             pageX += pageWidth + PAGE_GAP;
         }
 
-        int buttonHeight = (int)(leftButton.prefHeight(-1));
-        if (buttonHeight < 30) buttonHeight = 30;
-        final int buttonTop = (int)((top-buttonHeight)/2d);
-        final int leftButtonWidth = (int)snapSize(leftButton.prefWidth(-1));
-        leftButton.resizeRelocate(left, buttonTop,leftButtonWidth,buttonHeight);
-        final int rightButtonWidth = (int)snapSize(rightButton.prefWidth(-1));
-        rightButton.resizeRelocate(width-right-rightButtonWidth, buttonTop,rightButtonWidth,buttonHeight);
+        int buttonHeight = (int) (leftButton.prefHeight(-1));
+        if (buttonHeight < 30)
+            buttonHeight = 30;
+        final int buttonTop = (int) ((top - buttonHeight) / 2d);
+        final int leftButtonWidth = (int) snapSize(leftButton.prefWidth(-1));
+        leftButton.resizeRelocate(left, buttonTop, leftButtonWidth, buttonHeight);
+        final int rightButtonWidth = (int) snapSize(rightButton.prefWidth(-1));
+        rightButton.resizeRelocate(width - right - rightButtonWidth, buttonTop, rightButtonWidth, buttonHeight);
 
         final double leftButtonRight = leftButton.isVisible() ? (left + leftButtonWidth) : left;
         final double rightButtonLeft = rightButton.isVisible() ? (right + rightButtonWidth) : right;
@@ -293,24 +303,24 @@ public class Popover extends Region implements EventHandler<Event>{
         rightButton.setText(page.rightButtonText());
         if (pages.size() > 0) {
             final Insets insets = getInsets();
-            final int width = (int)prefWidth(-1);
-            final int right = (int)insets.getRight();
-            final int left = (int)insets.getLeft();
+            final int width = (int) prefWidth(-1);
+            final int right = (int) insets.getRight();
+            final int left = (int) insets.getLeft();
             int pageWidth = width - left - right;
-            final int newPageX = (pageWidth+PAGE_GAP) * (pages.size()-1);
+            final int newPageX = (pageWidth + PAGE_GAP) * (pages.size() - 1);
             new Timeline(
                     new KeyFrame(Duration.millis(350), (ActionEvent t) -> {
                         pagesPane.setCache(false);
-                        pagesPane.getChildren().remove(pagesPane.getChildren().size()-1);
-                        titlesPane.getChildren().remove(titlesPane.getChildren().size()-1);
+                        pagesPane.getChildren().remove(pagesPane.getChildren().size() - 1);
+                        titlesPane.getChildren().remove(titlesPane.getChildren().size() - 1);
                         resizePopoverToNewPage(pages.getFirst().getPageNode());
-            },
-                        new KeyValue(pagesPane.translateXProperty(), -newPageX, Interpolator.EASE_BOTH),
-                        new KeyValue(titlesPane.translateXProperty(), -newPageX, Interpolator.EASE_BOTH),
-                        new KeyValue(pagesClipRect.xProperty(), newPageX, Interpolator.EASE_BOTH),
-                        new KeyValue(titlesClipRect.translateXProperty(), newPageX, Interpolator.EASE_BOTH)
+                    },
+                            new KeyValue(pagesPane.translateXProperty(), -newPageX, Interpolator.EASE_BOTH),
+                            new KeyValue(titlesPane.translateXProperty(), -newPageX, Interpolator.EASE_BOTH),
+                            new KeyValue(pagesClipRect.xProperty(), newPageX, Interpolator.EASE_BOTH),
+                            new KeyValue(titlesClipRect.translateXProperty(), newPageX, Interpolator.EASE_BOTH)
                     )
-                ).play();
+            ).play();
         } else {
             hide();
         }
@@ -321,7 +331,7 @@ public class Popover extends Region implements EventHandler<Event>{
         pageNode.setManaged(false);
         pagesPane.getChildren().add(pageNode);
         final Insets insets = getInsets();
-        final int pageWidth = (int)(prefWidth(-1) - insets.getLeft() - insets.getRight());
+        final int pageWidth = (int) (prefWidth(-1) - insets.getLeft() - insets.getRight());
         final int newPageX = (pageWidth + PAGE_GAP) * pages.size();
         leftButton.setVisible(page.leftButtonText() != null);
         leftButton.setText(page.leftButtonText());
@@ -340,13 +350,13 @@ public class Popover extends Region implements EventHandler<Event>{
                     new KeyFrame(Duration.millis(350), (ActionEvent t) -> {
                         pagesPane.setCache(false);
                         resizePopoverToNewPage(pageNode);
-            },
-                        new KeyValue(pagesPane.translateXProperty(), -newPageX, Interpolator.EASE_BOTH),
-                        new KeyValue(titlesPane.translateXProperty(), -newPageX, Interpolator.EASE_BOTH),
-                        new KeyValue(pagesClipRect.xProperty(), newPageX, Interpolator.EASE_BOTH),
-                        new KeyValue(titlesClipRect.translateXProperty(), newPageX, Interpolator.EASE_BOTH)
+                    },
+                            new KeyValue(pagesPane.translateXProperty(), -newPageX, Interpolator.EASE_BOTH),
+                            new KeyValue(titlesPane.translateXProperty(), -newPageX, Interpolator.EASE_BOTH),
+                            new KeyValue(pagesClipRect.xProperty(), newPageX, Interpolator.EASE_BOTH),
+                            new KeyValue(titlesClipRect.translateXProperty(), newPageX, Interpolator.EASE_BOTH)
                     )
-                );
+            );
             timeline.play();
         }
         page.setPopover(this);
@@ -361,23 +371,23 @@ public class Popover extends Region implements EventHandler<Event>{
         double h = newPageNode.prefHeight(contentWidth);
         h += insets.getTop() + insets.getBottom();
         new Timeline(
-            new KeyFrame(Duration.millis(200),
-                new KeyValue(popoverHeight, h, Interpolator.EASE_BOTH)
-            )
+                new KeyFrame(Duration.millis(200),
+                        new KeyValue(popoverHeight, h, Interpolator.EASE_BOTH)
+                )
         ).play();
     }
 
-    public void show(){
+    public void show() {
         show(null);
     }
 
     private Animation fadeAnimation = null;
 
-    public void show(Runnable onHideCallback){
+    public void show(Runnable onHideCallback) {
         if (!isVisible() || fadeAnimation != null) {
             this.onHideCallback = onHideCallback;
             getScene().addEventFilter(MouseEvent.MOUSE_CLICKED, popoverHideHandler);
-//            getScene().addEventFilter(ScrollEvent.ANY,popoverScrollHandler);
+            //            getScene().addEventFilter(ScrollEvent.ANY,popoverScrollHandler);
 
             if (fadeAnimation != null) {
                 fadeAnimation.stop();
@@ -403,10 +413,10 @@ public class Popover extends Region implements EventHandler<Event>{
         }
     }
 
-    public void hide(){
+    public void hide() {
         if (isVisible() || fadeAnimation != null) {
             getScene().removeEventFilter(MouseEvent.MOUSE_CLICKED, popoverHideHandler);
-//            getScene().removeEventFilter(ScrollEvent.ANY,popoverScrollHandler);
+            //            getScene().removeEventFilter(ScrollEvent.ANY,popoverScrollHandler);
 
             if (fadeAnimation != null) {
                 fadeAnimation.stop();
@@ -418,7 +428,8 @@ public class Popover extends Region implements EventHandler<Event>{
                 fadeAnimation = null;
                 setVisible(false);
                 clearPages();
-                if (onHideCallback != null) onHideCallback.run();
+                if (onHideCallback != null)
+                    onHideCallback.run();
             });
 
             ScaleTransition scale = new ScaleTransition(Duration.seconds(.1), this);
@@ -436,6 +447,7 @@ public class Popover extends Region implements EventHandler<Event>{
      */
     public static interface Page {
         public void setPopover(Popover popover);
+
         public Popover getPopover();
 
         /**
@@ -454,6 +466,7 @@ public class Popover extends Region implements EventHandler<Event>{
 
         /**
          * The text for left button, if null then button will be hidden.
+         *
          * @return The button text
          */
         public String leftButtonText();
@@ -465,6 +478,7 @@ public class Popover extends Region implements EventHandler<Event>{
 
         /**
          * The text for right button, if null then button will be hidden.
+         *
          * @return The button text
          */
         public String rightButtonText();
@@ -475,6 +489,7 @@ public class Popover extends Region implements EventHandler<Event>{
         public void handleRightButton();
 
         public void handleShown();
+
         public void handleHidden();
     }
 }

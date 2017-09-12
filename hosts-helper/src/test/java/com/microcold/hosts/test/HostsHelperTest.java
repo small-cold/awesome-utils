@@ -3,7 +3,6 @@ package com.microcold.hosts.test;
 import com.microcold.hosts.operate.HostBean;
 import com.microcold.hosts.operate.HostsOperator;
 import com.microcold.hosts.operate.HostsOperatorFactory;
-import com.microcold.hosts.utils.IPDomainUtil;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
@@ -15,7 +14,7 @@ import java.io.IOException;
 public class HostsHelperTest {
 
     @Test
-    public void test(){
+    public void test() {
         HostBean.build("127.0.0.1\tlocalhost  ChaoMBP");
     }
 
@@ -29,8 +28,8 @@ public class HostsHelperTest {
     public void testChange() throws IOException {
         HostsOperator hostsOperator = HostsOperatorFactory.getSystemHostsOperator();
         hostsOperator.changeStatus("192.168.76.2", "www.liepin.com", false);
-        for (HostBean hostBean: hostsOperator.getHostBeanList()){
-            if (hostBean.isValid() && hostBean.getDomain().equals("www.liepin.com")){
+        for (HostBean hostBean : hostsOperator.getHostBeanList()) {
+            if (hostBean.isValid() && hostBean.getDomain().equals("www.liepin.com")) {
                 System.out.println("修改后的：" + hostBean);
             }
         }

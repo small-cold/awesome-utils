@@ -2,7 +2,6 @@ package com.microcold.hosts.view.controller;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
 import javafx.scene.control.TableView;
 
 import java.net.URL;

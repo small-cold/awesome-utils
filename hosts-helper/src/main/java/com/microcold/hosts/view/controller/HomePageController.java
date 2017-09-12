@@ -276,22 +276,22 @@ public class HomePageController implements Initializable {
         hostsTableView.refresh();
     }
 
-    public Map<HostsOperator, List<HostBean>> search(String key) {
+    public Map<HostsOperator, List<HostsSearchResult>> search(String key) {
         if (StringUtils.isBlank(key)) {
             return Collections.emptyMap();
         }
-        Map<HostsOperator, List<HostBean>> result = Maps.newLinkedHashMap();
+        Map<HostsOperator, List<HostsSearchResult>> result = Maps.newLinkedHashMap();
         result.put(getHostsOperator(), getHostsOperator().search(key));
         return result;
     }
 
     public void getToItem(Integer id) {
-        if (id != null && id >= 0 && CollectionUtils.isNotEmpty(hostList)){
+        if (id != null && id >= 0 && CollectionUtils.isNotEmpty(hostList)) {
             int index = 0;
-            for (HostProperty hostProperty : hostList){
-                if (hostProperty.idProperty().get() == id){
+            for (HostProperty hostProperty : hostList) {
+                if (hostProperty.idProperty().get() == id) {
                     hostsTableView.getSelectionModel().select(hostProperty);
-                    hostsTableView.scrollTo(index > 6 ? index - 2: 0);
+                    hostsTableView.scrollTo(index > 6 ? index - 2 : 0);
                     // hostsTableView.getFocusModel().focus(index);
                     hostsTableView.setFocusTraversable(true);
                     Platform.runLater(() -> {
@@ -299,7 +299,7 @@ public class HomePageController implements Initializable {
                     });
                     break;
                 }
-                index ++;
+                index++;
             }
         }
     }

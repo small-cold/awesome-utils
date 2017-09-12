@@ -32,9 +32,9 @@
 package com.microcold.hosts.view;
 
 import com.google.common.collect.Maps;
-import com.microcold.hosts.operate.HostBean;
 import com.microcold.hosts.operate.HostsOperator;
 import com.microcold.hosts.view.controller.HomePageController;
+import com.microcold.hosts.view.controller.HostsSearchResult;
 import com.microcold.hosts.view.controller.Popover;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -66,7 +66,7 @@ public class SearchPopover extends Popover {
         this.indexSearcher = pageBrowser;
         this.searchResultPopoverList = new SearchResultPopoverList(pageBrowser);
         getStyleClass().add("right-tooth");
-        setPrefWidth(600);
+        setPrefWidth(400);
 
         searchBox.textProperty().addListener((ObservableValue<? extends String> ov, String t, String t1) -> {
             updateResults();
@@ -84,19 +84,21 @@ public class SearchPopover extends Popover {
             } else if (t.getCode() == KeyCode.ENTER) {
                 t.consume();
                 if (t.getEventType() == KeyEvent.KEY_PRESSED) {
-                    HostBean selectedItem = searchResultPopoverList.getSelectionModel().getSelectedItem();
-                    if (selectedItem != null) searchResultPopoverList.itemClicked(selectedItem);
+                    HostsSearchResult selectedItem = searchResultPopoverList.getSelectionModel().getSelectedItem();
+                    if (selectedItem != null)
+                        searchResultPopoverList.itemClicked(selectedItem);
                 }
             }
         });
 
         // if list gets focus then send back to search box
-        searchResultPopoverList.focusedProperty().addListener((ObservableValue<? extends Boolean> ov, Boolean t, Boolean hasFocus) -> {
-            if (hasFocus) {
-                searchBox.requestFocus();
-                searchBox.selectPositionCaret(searchBox.getText().length());
-            }
-        });
+        searchResultPopoverList.focusedProperty()
+                .addListener((ObservableValue<? extends Boolean> ov, Boolean t, Boolean hasFocus) -> {
+                    if (hasFocus) {
+                        searchBox.requestFocus();
+                        searchBox.selectPositionCaret(searchBox.getText().length());
+                    }
+                });
     }
 
     private void updateResults() {
@@ -105,9 +107,9 @@ public class SearchPopover extends Popover {
             return;
         }
         boolean haveResults = false;
-        Map<HostsOperator, List<HostBean>> results = indexSearcher.search(searchBox.getText());
+        Map<HostsOperator, List<HostsSearchResult>> results = indexSearcher.search(searchBox.getText());
         // check if we have any results
-        for (List<HostBean> categoryResults : results.values()) {
+        for (List<HostsSearchResult> categoryResults : results.values()) {
             if (categoryResults.size() > 0) {
                 haveResults = true;
                 break;
@@ -124,9 +126,9 @@ public class SearchPopover extends Popover {
         }
     }
 
-    private void populateMenu(Map<HostsOperator, List<HostBean>> results) {
+    private void populateMenu(Map<HostsOperator, List<HostsSearchResult>> results) {
         searchResultPopoverList.getItems().clear();
-        for(Map.Entry<HostsOperator, List<HostBean>> entry: results.entrySet()) {
+        for (Map.Entry<HostsOperator, List<HostsSearchResult>> entry : results.entrySet()) {
             searchResultPopoverList.getItems().addAll(entry.getValue());
         }
         clearPages();

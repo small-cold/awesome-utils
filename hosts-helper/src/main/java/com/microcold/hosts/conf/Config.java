@@ -92,7 +92,7 @@ public class Config {
         }
     }
 
-    public static ConfigBean getConfigBean(){
+    public static ConfigBean getConfigBean() {
         if (!userSettingFile.exists()) {
             ConfigBean configBean = new ConfigBean();
             configBean.setSysHostsPath(SystemUtil.getSysHostsPath());
@@ -133,10 +133,10 @@ public class Config {
     public static File getHostsFileCategory(String name) throws IOException {
         File root = getHostsFileRoot();
         File newFile = new File(root, name);
-        if (!newFile.exists()){
+        if (!newFile.exists()) {
             boolean result = newFile.mkdirs();
             if (!result) {
-                throw new IOException("创建hosts文件分组失败 name=" + name );
+                throw new IOException("创建hosts文件分组失败 name=" + name);
             }
         }
         return newFile;
@@ -161,7 +161,7 @@ public class Config {
         File[] childFiles = file.listFiles();
         if (childFiles != null) {
             for (File childFile : childFiles) {
-                if (childFile.getName().startsWith(".")){
+                if (childFile.getName().startsWith(".")) {
                     continue;
                 }
                 fileList.add(childFile);
@@ -232,7 +232,7 @@ public class Config {
     }
 
     public static boolean setAdminPassword(String adminPassword) {
-        if (SystemUtil.changeMod(adminPassword, SystemUtil.getSysHostsPath())){
+        if (SystemUtil.changeMod(adminPassword, SystemUtil.getSysHostsPath())) {
             Config.adminPassword = adminPassword;
             return true;
         }
@@ -244,31 +244,31 @@ public class Config {
         return StringUtils.isNotBlank(adminPassword);
     }
 
-    public static File getCacheFile(){
+    public static File getCacheFile() {
         return cacheFile;
     }
 
     public static boolean isValidHostsCategory(File file) {
-        if (!file.exists() || file.isFile() || file.getName().startsWith(".")){
+        if (!file.exists() || file.isFile() || file.getName().startsWith(".")) {
             return false;
         }
-        if (!file.getPath().startsWith(hostsFile.getPath())){
+        if (!file.getPath().startsWith(hostsFile.getPath())) {
             return false;
         }
         int deep = 0;
-        while (!file.equals(hostsFile)){
+        while (!file.equals(hostsFile)) {
             file = file.getParentFile();
-            deep ++;
+            deep++;
         }
-        if (deep <= getConfigBean().getHostsCategoryDeep()){
+        if (deep <= getConfigBean().getHostsCategoryDeep()) {
             return true;
         }
         return false;
     }
 
-    public static String getSysHostsPath(){
+    public static String getSysHostsPath() {
         String path = SystemUtil.getSysHostsPath();
-        if (StringUtils.isNotBlank(path)){
+        if (StringUtils.isNotBlank(path)) {
             return path;
         }
         return getConfigBean().getSysHostsPath();

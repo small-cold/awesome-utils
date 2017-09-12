@@ -53,12 +53,23 @@ public class TitledToolBar extends HBox {
     private Label titleLabel = new Label(defaultTitle);
 
     private StringProperty titleText = new SimpleStringProperty(null);
-    public StringProperty titleTextProperty() { return titleText; };
-    public String getTitleText() { return titleText.get(); }
-    public void setTitleText(String text) { titleText.set(text);}
+
+    public StringProperty titleTextProperty() {
+        return titleText;
+    }
+
+    ;
+
+    public String getTitleText() {
+        return titleText.get();
+    }
+
+    public void setTitleText(String text) {
+        titleText.set(text);
+    }
 
     public TitledToolBar() {
-        getStyleClass().addAll("tool-bar","hostshelper-tool-bar");
+        getStyleClass().addAll("tool-bar", "hostshelper-tool-bar");
         titleLabel.getStyleClass().add("title");
         titleLabel.setManaged(false);
         titleLabel.textProperty().bind(titleText);
@@ -68,28 +79,31 @@ public class TitledToolBar extends HBox {
         getChildren().add(spacer);
     }
 
-    public void addLeftItems(Node ... items) {
+    public void addLeftItems(Node... items) {
         getChildren().addAll(0, Arrays.asList(items));
     }
 
-    public void addRightItems(Node ... items) {
+    public void addRightItems(Node... items) {
         getChildren().addAll(items);
     }
 
-    @Override protected void layoutChildren() {
+    @Override
+    protected void layoutChildren() {
         super.layoutChildren();
         final double w = getWidth();
         final double h = getHeight();
         final double titleWidth = titleLabel.prefWidth(h);
         double leftItemsWidth = getPadding().getLeft();
-        for(Node item: getChildren()) {
-            if (item == titleLabel) break;
+        for (Node item : getChildren()) {
+            if (item == titleLabel)
+                break;
             leftItemsWidth += item.getLayoutBounds().getWidth();
             Insets margins = getMargin(item);
-            if (margins != null) leftItemsWidth += margins.getLeft() + margins.getRight();
+            if (margins != null)
+                leftItemsWidth += margins.getLeft() + margins.getRight();
             leftItemsWidth += getSpacing();
         }
-        if ((leftItemsWidth+(titleWidth/2)) < (w/2)) {
+        if ((leftItemsWidth + (titleWidth / 2)) < (w / 2)) {
             titleLabel.setVisible(true);
             layoutInArea(titleLabel, 0, 0, getWidth(), h, 0, HPos.CENTER, VPos.CENTER);
         } else {

@@ -44,7 +44,7 @@ import javafx.util.Callback;
 /**
  * Special ListView designed to look like "Text... &gt;" tree list. Perhaps we ought to have customized
  * a TreeView instead of a ListView (as the TreeView already has the data model all defined).
- *
+ * <p>
  * This implementation minimizes classes by just having the PopoverTreeList implementing everything
  * (it is the Control, the Skin, and the CellFactory all in one).
  */
@@ -52,16 +52,18 @@ public class PopoverTreeList<T> extends ListView<T> implements Callback<ListView
     protected static final Image RIGHT_ARROW = new Image(
             HostsHelperApp.class.getClassLoader().getResource("images/popover-arrow.png").toExternalForm());
 
-    public PopoverTreeList(){
+    public PopoverTreeList() {
         getStyleClass().clear();
         setCellFactory(this);
     }
 
-    @Override public ListCell<T> call(ListView<T> p) {
+    @Override
+    public ListCell<T> call(ListView<T> p) {
         return new TreeItemListCell();
     }
 
-    protected void itemClicked(T item) {}
+    protected void itemClicked(T item) {
+    }
 
     private class TreeItemListCell extends ListCell<T> implements EventHandler<MouseEvent> {
         private ImageView arrow = new ImageView(RIGHT_ARROW);
@@ -72,34 +74,40 @@ public class PopoverTreeList<T> extends ListView<T> implements Callback<ListView
             setOnMouseClicked(this);
         }
 
-        @Override public void handle(MouseEvent t) {
+        @Override
+        public void handle(MouseEvent t) {
             itemClicked(getItem());
         }
 
-        @Override protected double computePrefWidth(double height) {
+        @Override
+        protected double computePrefWidth(double height) {
             return 100;
         }
 
-        @Override protected double computePrefHeight(double width) {
+        @Override
+        protected double computePrefHeight(double width) {
             return 44;
         }
 
-        @Override protected void layoutChildren() {
-            if (getChildren().size() < 2) getChildren().add(arrow);
+        @Override
+        protected void layoutChildren() {
+            if (getChildren().size() < 2)
+                getChildren().add(arrow);
             super.layoutChildren();
-            final int w = (int)getWidth();
-            final int h = (int)getHeight();
-            final int centerX = (int)(w/2d);
-            final int centerY = (int)(h/2d);
+            final int w = (int) getWidth();
+            final int h = (int) getHeight();
+            final int centerX = (int) (w / 2d);
+            final int centerY = (int) (h / 2d);
             final Bounds arrowBounds = arrow.getLayoutBounds();
             arrow.setLayoutX(w - arrowBounds.getWidth() - 12);
-            arrow.setLayoutY((int)((h - arrowBounds.getHeight())/2d));
+            arrow.setLayoutY((int) ((h - arrowBounds.getHeight()) / 2d));
         }
 
         // CELL METHODS
-        @Override protected void updateItem(T item, boolean empty) {
+        @Override
+        protected void updateItem(T item, boolean empty) {
             // let super do its work
-            super.updateItem(item,empty);
+            super.updateItem(item, empty);
             // update our state
             if (item == null) { // empty item
                 setText(null);

@@ -1,6 +1,5 @@
 package com.microcold.hosts.operate;
 
-
 import com.microcold.hosts.conf.Config;
 import com.microcold.hosts.exception.PermissionIOException;
 import com.microcold.hosts.utils.SystemUtil;
@@ -17,15 +16,15 @@ public class SysHostsOperator extends HostsOperator {
 
     public static SysHostsOperator instance;
 
-    public static SysHostsOperator getInstance(){
-        if (instance == null){
+    public static SysHostsOperator getInstance() {
+        if (instance == null) {
             instance = new SysHostsOperator();
             instance.setName("当前配置");
         }
         return instance;
     }
 
-    private SysHostsOperator(){
+    private SysHostsOperator() {
         super(Config.getSysHostsPath());
     }
 
@@ -36,7 +35,7 @@ public class SysHostsOperator extends HostsOperator {
 
     @Override
     public void flush() throws IOException {
-        if (StringUtils.isBlank(Config.getAdminPassword())){
+        if (StringUtils.isBlank(Config.getAdminPassword())) {
             throw new PermissionIOException("需要管理员权限");
         }
         File cacheFile = new File(Config.getCacheFile(), "currentHost");

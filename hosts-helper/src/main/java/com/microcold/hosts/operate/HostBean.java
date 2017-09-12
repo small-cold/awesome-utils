@@ -47,40 +47,40 @@ public class HostBean {
     @Setter
     private String domain;
 
-    public HostBean(){
+    public HostBean() {
         enable = true;
         comment = "";
         ip = -1;
         domain = "";
     }
 
-    public HostBean(long ip, String domain, boolean enable){
+    public HostBean(long ip, String domain, boolean enable) {
         this(ip, domain, enable, "");
     }
 
-    public HostBean(long ip, String domain, boolean enable, String content){
+    public HostBean(long ip, String domain, boolean enable, String content) {
         this.enable = enable;
         this.ip = ip;
         this.domain = domain;
-        if (!isValid() && StringUtils.isNotBlank(content) && content.startsWith("#")){
+        if (!isValid() && StringUtils.isNotBlank(content) && content.startsWith("#")) {
             this.comment = content;
         }
     }
 
-    public static List<HostBean> build(String hostLine){
+    public static List<HostBean> build(String hostLine) {
         List<HostBean> hostBeanList = Lists.newArrayList();
         boolean isBlank = StringUtils.isBlank(hostLine) || StringUtils.isBlank(hostLine.trim());
-        if (!isBlank){
+        if (!isBlank) {
             List<String> domainList = IPDomainUtil.getDomainList(hostLine);
             long ip = IPDomainUtil.getIPLong(hostLine);
             boolean enable = !hostLine.startsWith("#");
-            if (ip == IPDomainUtil.SELF_IP_LONG){
+            if (ip == IPDomainUtil.SELF_IP_LONG) {
                 domainList = IPDomainUtil.getSelfDomainList(hostLine);
             }
-            if (CollectionUtils.isEmpty(domainList)){
+            if (CollectionUtils.isEmpty(domainList)) {
                 hostBeanList.add(new HostBean(-1, "", false, hostLine));
-            }else {
-                for (String domain: domainList){
+            } else {
+                for (String domain : domainList) {
                     hostBeanList.add(new HostBean(ip, domain, enable, hostLine));
                 }
             }
@@ -88,12 +88,12 @@ public class HostBean {
         return hostBeanList;
     }
 
-    public boolean isValid(){
+    public boolean isValid() {
         return getIp() >= 0 && StringUtils.isNotBlank(domain);
     }
 
     public HostBean setIp(long ip) {
-        if (ip < 0){
+        if (ip < 0) {
             this.enable = false;
         }
         this.ip = ip;
@@ -128,17 +128,17 @@ public class HostBean {
 
     @Override
     public String toString() {
-        if (!isValid()){
+        if (!isValid()) {
             return comment;
         }
         StringBuilder sb = new StringBuilder();
-        if (StringUtils.isNotBlank(comment)){
-            if (!comment.startsWith("#")){
+        if (StringUtils.isNotBlank(comment)) {
+            if (!comment.startsWith("#")) {
                 sb.append("# ");
             }
             sb.append(comment.replaceAll("\\s", "")).append("\n");
         }
-        if (!isEnable()){
+        if (!isEnable()) {
             sb.append("# ");
         }
         sb.append(IPDomainUtil.longToIP(this.getIp()));

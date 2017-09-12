@@ -31,46 +31,35 @@
  */
 package com.microcold.hosts.view;
 
-import com.microcold.hosts.operate.HostBean;
+import com.microcold.hosts.operate.HostsOperatorFactory;
 import com.microcold.hosts.view.controller.HomePageController;
+import com.microcold.hosts.view.controller.HostsSearchResult;
 import com.microcold.hosts.view.controller.Popover;
 import com.microcold.hosts.view.controller.PopoverTreeList;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Skin;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Popover page that displays a list of search results.
  */
-public class SearchResultPopoverList extends PopoverTreeList<HostBean> implements Popover.Page {
+public class SearchResultPopoverList extends PopoverTreeList<HostsSearchResult> implements Popover.Page {
     private Popover popover;
     private HomePageController pageBrowser;
-    private Rectangle leftLine = new Rectangle(0, 0, 1, 1);
-    private IconPane iconPane = new IconPane();
     private final Pane backgroundRectangle = new Pane();
 
     public SearchResultPopoverList(HomePageController pageBrowser) {
         this.pageBrowser = pageBrowser;
-        leftLine.setFill(Color.web("#dfdfdf"));
-        iconPane.setManaged(false);
         setFocusTraversable(false);
         backgroundRectangle.setId("PopoverBackground");
         setPlaceholder(backgroundRectangle);
@@ -79,21 +68,11 @@ public class SearchResultPopoverList extends PopoverTreeList<HostBean> implement
     @Override
     protected void layoutChildren() {
         super.layoutChildren();
-        if (leftLine.getParent() != this)
-            getChildren().add(leftLine);
-        if (iconPane.getParent() != this)
-            getChildren().add(iconPane);
-        leftLine.setLayoutX(40);
-        leftLine.setLayoutY(0);
-        leftLine.setHeight(getHeight());
-        iconPane.setLayoutX(0);
-        iconPane.setLayoutY(0);
-        iconPane.resize(getWidth(), getHeight());
         backgroundRectangle.resize(getWidth(), getHeight());
     }
 
     @Override
-    public void itemClicked(HostBean item) {
+    public void itemClicked(HostsSearchResult item) {
         popover.hide();
         pageBrowser.getToItem(item.getId());
     }
@@ -115,7 +94,7 @@ public class SearchResultPopoverList extends PopoverTreeList<HostBean> implement
 
     @Override
     public String getPageTitle() {
-        return "Results";
+        return "搜索结果";
     }
 
     @Override
@@ -145,115 +124,16 @@ public class SearchResultPopoverList extends PopoverTreeList<HostBean> implement
     }
 
     @Override
-    public ListCell<HostBean> call(ListView<HostBean> p) {
+    public ListCell<HostsSearchResult> call(ListView<HostsSearchResult> p) {
         return new SearchResultListCell();
     }
 
-    private class IconPane extends Pane {
-        private Region samplesIcon = new Region();
-        private Label classesIcon = new Label("C");
-        private Label propertiesIcon = new Label("P");
-        private Label methodsIcon = new Label("M");
-        private Label fieldsIcon = new Label("F");
-        private Label enumsIcon = new Label("E");
-        private Region documentationIcon = new Region();
-        private List<SearchResultListCell> allCells = new ArrayList<>();
-        private Rectangle classesLine = new Rectangle(0, 0, 40, 1);
-        private Rectangle propertiesLine = new Rectangle(0, 0, 40, 1);
-        private Rectangle methodsLine = new Rectangle(0, 0, 40, 1);
-        private Rectangle fieldsLine = new Rectangle(0, 0, 40, 1);
-        private Rectangle enumsLine = new Rectangle(0, 0, 40, 1);
-        private Rectangle documentationLine = new Rectangle(0, 0, 40, 1);
-
-        public IconPane() {
-            getStyleClass().add("search-icon-pane");
-            samplesIcon.getStyleClass().add("samples-icon");
-            documentationIcon.getStyleClass().add("documentation-icon");
-            classesLine.setFill(Color.web("#dfdfdf"));
-            propertiesLine.setFill(Color.web("#dfdfdf"));
-            methodsLine.setFill(Color.web("#dfdfdf"));
-            fieldsLine.setFill(Color.web("#dfdfdf"));
-            enumsLine.setFill(Color.web("#dfdfdf"));
-            documentationLine.setFill(Color.web("#dfdfdf"));
-            getChildren().addAll(samplesIcon, classesIcon, propertiesIcon, methodsIcon, fieldsIcon, enumsIcon,
-                    documentationIcon,
-                    classesLine, propertiesLine, methodsLine, fieldsLine, enumsLine, documentationLine);
-            setMouseTransparent(true);
-        }
-
-
-        @Override
-        protected void layoutChildren() {
-            List<SearchResultListCell> visibleCells = new ArrayList<>(20);
-            for (SearchResultListCell cell : allCells) {
-                if (cell.isVisible())
-                    visibleCells.add(cell);
-            }
-            Collections.sort(visibleCells, (Node o1, Node o2) -> Double.compare(o1.getLayoutY(), o2.getLayoutY()));
-
-            samplesIcon.setLayoutX(8);
-            samplesIcon.resize(24, 24);
-            classesIcon.setLayoutX(8);
-            classesIcon.resize(24, 24);
-            propertiesIcon.setLayoutX(8);
-            propertiesIcon.resize(24, 24);
-            methodsIcon.setLayoutX(8);
-            methodsIcon.resize(24, 24);
-            fieldsIcon.setLayoutX(8);
-            fieldsIcon.resize(24, 24);
-            enumsIcon.setLayoutX(8);
-            enumsIcon.resize(24, 24);
-            documentationIcon.setLayoutX(8);
-            documentationIcon.resize(24, 24);
-
-            samplesIcon.setVisible(false);
-            classesIcon.setVisible(false);
-            propertiesIcon.setVisible(false);
-            methodsIcon.setVisible(false);
-            fieldsIcon.setVisible(false);
-            enumsIcon.setVisible(false);
-            documentationIcon.setVisible(false);
-            classesLine.setVisible(false);
-            propertiesLine.setVisible(false);
-            methodsLine.setVisible(false);
-            fieldsLine.setVisible(false);
-            enumsLine.setVisible(false);
-            documentationLine.setVisible(false);
-
-            final int last = visibleCells.size() - 1;
-            for (int index = 0; index <= last; index++) {
-                SearchResultListCell cell = visibleCells.get(index);
-                // if (lastDocType != docType && docType != null) {
-                //     // this is first of this doc type
-                //     Node icon = getIconForDocType(docType);
-                //     icon.setVisible(true);
-                //     // calculate cell position relative to iconPane
-                //     Point2D cell00 = cell.localToScene(0, 0);
-                //     cell00 = sceneToLocal(cell00);
-                //     // check if next is differnt
-                //     if (index != last && getDocumentTypeForCell(visibleCells.get(index + 1)) != docType) {
-                //         icon.setLayoutY(cell00.getY() + 8);
-                //     } else {
-                //         icon.setLayoutY(Math.max(8, cell00.getY() + 8));
-                //     }
-                //     // update line
-                //     // Rectangle line = getLineForDocType(docType);
-                //     // if (line != null) {
-                //     //     line.setVisible(true);
-                //     //     line.setLayoutY(cell00.getY());
-                //     // }
-                // }
-                // lastDocType = docType;
-            }
-
-        }
-    }
-
-    private class SearchResultListCell extends ListCell<HostBean>
+    private class SearchResultListCell extends ListCell<HostsSearchResult>
             implements Skin<SearchResultListCell>, EventHandler {
         private static final int TEXT_GAP = 6;
         private ImageView arrow = new ImageView(RIGHT_ARROW);
         private Label title = new Label();
+        private Label icon = new Label();
         private Label details = new Label();
         private int cellIndex;
         private Rectangle topLine = new Rectangle(0, 0, 1, 1);
@@ -266,9 +146,10 @@ public class SearchResultPopoverList extends PopoverTreeList<HostBean> implement
             setSkin(this);
             getStyleClass().setAll("search-result-cell");
             title.getStyleClass().setAll("title");
+            icon.getStyleClass().setAll("icon");
             details.getStyleClass().setAll("details");
             topLine.setFill(Color.web("#dfdfdf"));
-            getChildren().addAll(arrow, title, details, topLine);
+            getChildren().addAll(arrow, title, icon, details, topLine);
             setOnMouseClicked(this);
 
             // listen to changes of this cell being added and removed from list
@@ -277,21 +158,6 @@ public class SearchResultPopoverList extends PopoverTreeList<HostBean> implement
             // many times for any change of cell layout in the list but that
             // dosn't matter as they will all be batched up by layout machanisim
             // and iconPane.layoutChildren() will only be called once per frame.
-            final ChangeListener<Bounds> boundsChangeListener = (ObservableValue<? extends Bounds> ov, Bounds t, Bounds t1) -> {
-                iconPane.requestLayout();
-            };
-            parentProperty().addListener((ObservableValue<? extends Parent> ov, Parent oldParent, Parent newParent) -> {
-                if (oldParent != null) {
-                    oldParent.layoutBoundsProperty().removeListener(boundsChangeListener);
-                }
-                if (newParent != null && newParent.isVisible()) {
-                    iconPane.allCells.add(SearchResultListCell.this);
-                    newParent.layoutBoundsProperty().addListener(boundsChangeListener);
-                } else {
-                    iconPane.allCells.remove(SearchResultListCell.this);
-                }
-                iconPane.requestLayout();
-            });
         }
 
         @Override
@@ -351,15 +217,18 @@ public class SearchResultPopoverList extends PopoverTreeList<HostBean> implement
             final double w = getWidth() - left - insets.getRight();
             final double h = getHeight() - top - insets.getBottom();
             final double titleHeight = title.prefHeight(w);
-            title.setLayoutX(left);
+            icon.setLayoutX(left);
+            icon.setLayoutY(top);
+            icon.resize(50, titleHeight);
+            title.setLayoutX(left + icon.getWidth() + TEXT_GAP);
             title.setLayoutY(top);
-            title.resize(w, titleHeight);
+            title.resize(w - icon.getWidth() - TEXT_GAP, titleHeight);
             final double detailsHeight = details.prefHeight(w);
             details.setLayoutX(left);
             details.setLayoutY(top + titleHeight + TEXT_GAP);
             details.resize(w, detailsHeight);
             final Bounds arrowBounds = arrow.getLayoutBounds();
-            arrow.setLayoutX(getWidth() - arrowBounds.getWidth() - 12);
+            arrow.setLayoutX(getWidth() - arrowBounds.getWidth() - 24);
             arrow.setLayoutY((int) ((getHeight() - arrowBounds.getHeight()) / 2d));
             topLine.setLayoutX(left - 5);
             topLine.setWidth(getWidth() - left + 5);
@@ -367,18 +236,28 @@ public class SearchResultPopoverList extends PopoverTreeList<HostBean> implement
 
         // CELL METHODS
         @Override
-        protected void updateItem(HostBean result, boolean empty) {
+        protected void updateItem(HostsSearchResult result, boolean empty) {
             super.updateItem(result, empty);
             if (result == null) { // empty item
                 arrow.setVisible(false);
+                icon.setVisible(false);
                 title.setVisible(false);
                 details.setVisible(false);
             } else {
                 arrow.setVisible(true);
                 title.setVisible(true);
+                icon.setVisible(true);
                 details.setVisible(true);
-                title.setText(result.getDomain());
-                details.setText(result.toString());
+                title.setText(result.getTitle());
+                if (result.getHostsOperator() == HostsOperatorFactory.getSystemHostsOperator()){
+                    icon.getStyleClass().setAll("icon-system");
+                }else if (result.getHostsOperator() == HostsOperatorFactory.getCommonHostsOperator()){
+                    icon.getStyleClass().setAll("icon-common");
+                }else {
+                    icon.getStyleClass().setAll("icon");
+                }
+                icon.setText(result.getHostsOperator().getName());
+                details.setText(result.getDescription());
             }
         }
 

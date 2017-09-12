@@ -56,10 +56,10 @@ public class ConfigBean {
     private int hostsCategoryDeep = 1;
 
     public ConfigBean setHostsCategoryDeep(int hostsCategoryDeep) {
-        if (hostsCategoryDeep < 1){
+        if (hostsCategoryDeep < 1) {
             hostsCategoryDeep = 1;
         }
-        if (hostsCategoryDeep > 3){
+        if (hostsCategoryDeep > 3) {
             hostsCategoryDeep = 3;
         }
         this.hostsCategoryDeep = hostsCategoryDeep;

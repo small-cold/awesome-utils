@@ -38,8 +38,8 @@ public class SystemUtil {
     }
 
     public static String getSysHostsPath() {
-        if (StringUtils.isBlank(SYS_HOSTS_PATH)){
-            if (CURRENT_OS == EnumOS.Windows){
+        if (StringUtils.isBlank(SYS_HOSTS_PATH)) {
+            if (CURRENT_OS == EnumOS.Windows) {
                 File[] files = File.listRoots();
 
                 for (int i = 0; i < files.length; ++i) {
@@ -48,7 +48,7 @@ public class SystemUtil {
                         SYS_HOSTS_PATH = files[i] + "\\Windows\\System32\\drivers\\etc\\";
                     }
                 }
-            }else if (CURRENT_OS == EnumOS.MacOS || CURRENT_OS == EnumOS.Linux) {
+            } else if (CURRENT_OS == EnumOS.MacOS || CURRENT_OS == EnumOS.Linux) {
                 SYS_HOSTS_PATH = "/etc/hosts";
             }
         }
@@ -57,12 +57,13 @@ public class SystemUtil {
 
     /**
      * 修改文件权限
+     *
      * @param pwd
      * @param path
      * @return
      */
     public static boolean changeMod(String pwd, String path) {
-        if (StringUtils.isBlank(pwd)){
+        if (StringUtils.isBlank(pwd)) {
             return false;
         }
         if (pwd.equals("no")) {
@@ -80,10 +81,10 @@ public class SystemUtil {
     }
 
     public static boolean adminMove(File source, File target, String pwd) throws FileNotFoundException {
-        if (source == null || target == null){
+        if (source == null || target == null) {
             throw new IllegalArgumentException("source and target file must be not null");
         }
-        if (!source.exists()){
+        if (!source.exists()) {
             throw new FileNotFoundException("source is not exists");
         }
         try {

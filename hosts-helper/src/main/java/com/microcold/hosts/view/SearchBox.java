@@ -11,7 +11,7 @@ import javafx.scene.layout.Region;
 /*
  * Created by MicroCold on 2017/9/7.
  */
-public class SearchBox  extends TextField implements ChangeListener<String> {
+public class SearchBox extends TextField implements ChangeListener<String> {
     private final Button clearButton = new Button();
     private final Region innerBackground = new Region();
     private final Region icon = new Region();
@@ -34,18 +34,22 @@ public class SearchBox  extends TextField implements ChangeListener<String> {
         icon.setManaged(false);
     }
 
-    @Override protected void layoutChildren() {
+    @Override
+    protected void layoutChildren() {
         super.layoutChildren();
-        if (clearButton.getParent() != this) getChildren().add(clearButton);
-        if (innerBackground.getParent() != this) getChildren().add(0,innerBackground);
-        if (icon.getParent() != this) getChildren().add(icon);
+        if (clearButton.getParent() != this)
+            getChildren().add(clearButton);
+        if (innerBackground.getParent() != this)
+            getChildren().add(0, innerBackground);
+        if (icon.getParent() != this)
+            getChildren().add(icon);
         innerBackground.setLayoutX(0);
         innerBackground.setLayoutY(0);
         innerBackground.resize(getWidth(), getHeight());
         icon.setLayoutX(0);
         icon.setLayoutY(0);
-        icon.resize(35,30);
-        clearButton.setLayoutX(getWidth()-30);
+        icon.resize(35, 30);
+        clearButton.setLayoutX(getWidth() - 30);
         clearButton.setLayoutY(0);
         clearButton.resize(30, 30);
     }

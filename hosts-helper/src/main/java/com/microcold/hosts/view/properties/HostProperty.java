@@ -27,6 +27,7 @@ public class HostProperty {
         this.domain = new SimpleStringProperty("");
         this.comment = new SimpleStringProperty("");
     }
+
     public HostProperty(HostBean hostBean) {
         this.id = new SimpleIntegerProperty(hostBean.getId());
         this.enable = new SimpleBooleanProperty(hostBean.isEnable());
@@ -35,13 +36,23 @@ public class HostProperty {
         this.comment = new SimpleStringProperty(hostBean.getComment());
     }
 
-    public BooleanProperty enableProperty() { return enable; }
+    public BooleanProperty enableProperty() {
+        return enable;
+    }
 
-    public IntegerProperty idProperty() { return id; }
+    public IntegerProperty idProperty() {
+        return id;
+    }
 
-    public StringProperty ipProperty() { return ip; }
+    public StringProperty ipProperty() {
+        return ip;
+    }
 
-    public StringProperty domainProperty() { return domain; }
+    public StringProperty domainProperty() {
+        return domain;
+    }
 
-    public StringProperty commentProperty() { return comment; }
+    public StringProperty commentProperty() {
+        return comment;
+    }
 }

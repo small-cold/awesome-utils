@@ -7,7 +7,7 @@ import java.io.IOException;
  */
 public class PermissionIOException extends IOException {
 
-    public PermissionIOException(){
+    public PermissionIOException() {
         super();
     }
 

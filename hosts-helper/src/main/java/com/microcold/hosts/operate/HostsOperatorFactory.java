@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.microcold.hosts.conf.Config;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +21,7 @@ public class HostsOperatorFactory {
 
     private static Map<File, HostsOperator> hostsOperatorMap = Maps.newHashMap();
 
-    public static HostsOperator getSystemHostsOperator()  {
+    public static HostsOperator getSystemHostsOperator() {
         return SysHostsOperator.getInstance();
     }
 
@@ -28,7 +29,7 @@ public class HostsOperatorFactory {
         return build(Config.getHostsFileRoot());
     }
 
-    private static HostsOperator getHostsOperator(File file){
+    private static HostsOperator getHostsOperator(File file) {
         return hostsOperatorMap.computeIfAbsent(file, k -> new HostsOperator(file));
     }
 
@@ -61,12 +62,17 @@ public class HostsOperatorFactory {
         return hostsOperatorCategory;
     }
 
-    public static HostsOperator getCommonHostsOperator() throws IOException {
-        File file = Config.getCommonHostFile();
-        if (file.exists() && file.isFile()){
-            comHostsOperator = getHostsOperator(file);
-            comHostsOperator.init();
+    public static HostsOperator getCommonHostsOperator() {
+        try {
+            File file = Config.getCommonHostFile();
+            if (file.exists() && file.isFile()) {
+                comHostsOperator = getHostsOperator(file);
+                comHostsOperator.init();
+            }
+            return comHostsOperator;
+        } catch (IOException e) {
+            Logger.getLogger(HostsOperatorFactory.class).error("通用配置读取错误", e);
         }
-        return comHostsOperator;
+        return null;
     }
 }

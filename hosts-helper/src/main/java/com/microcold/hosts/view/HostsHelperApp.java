@@ -68,7 +68,7 @@ public class HostsHelperApp extends Application {
     }
 
     public ObjectProperty<Callback<Throwable, Integer>> callBackProperty() {
-        if (callBack == null){
+        if (callBack == null) {
             callBack = new SimpleObjectProperty<>();
             callBack.setValue(th -> {
                 if (th == null || th instanceof PermissionIOException) {
@@ -106,9 +106,10 @@ public class HostsHelperApp extends Application {
                 homePane.resize(w, h - toolBarHeight - menuHeight);
                 homePane.resizeRelocate(0, toolBarHeight + menuHeight + 5, w, h - toolBarHeight - menuHeight);
 
-                Point2D searchBoxBottomCenter = searchBox.localToScene(searchBox.getWidth()/2, searchBox.getHeight());
-                searchPopover.setLayoutX((int)searchBoxBottomCenter.getX()-searchPopover.getLayoutBounds().getWidth()+50);
-                searchPopover.setLayoutY((int)searchBoxBottomCenter.getY()+20);
+                Point2D searchBoxBottomCenter = searchBox.localToScene(searchBox.getWidth() / 2, searchBox.getHeight());
+                searchPopover.setLayoutX(
+                        (int) searchBoxBottomCenter.getX() - searchPopover.getLayoutBounds().getWidth() + 50);
+                searchPopover.setLayoutY((int) searchBoxBottomCenter.getY() + 20);
             }
         };
         root.setMinHeight(720);
@@ -210,7 +211,7 @@ public class HostsHelperApp extends Application {
         root.getChildren().add(menuBar);
     }
 
-    private void initHomePage(){
+    private void initHomePage() {
         FXMLLoader loader = new FXMLLoader();
         loader.setBuilderFactory(new JavaFXBuilderFactory());
         loader.setLocation(HostsHelperApp.class.getClassLoader().getResource(HOME_PAGE_FXML));
@@ -218,7 +219,7 @@ public class HostsHelperApp extends Application {
             homePane = loader.load(in);
             homePageController = loader.getController();
             homePageController.setCallbackObjectProperty(callBackProperty());
-        }catch (Exception e){
+        } catch (Exception e) {
             DialogUtils.createExceptionDialog("加载主页异常", e);
         }
         root.getChildren().add(0, homePane);

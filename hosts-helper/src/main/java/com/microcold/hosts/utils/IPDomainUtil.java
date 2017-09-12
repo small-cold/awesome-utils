@@ -21,40 +21,42 @@ public class IPDomainUtil {
     /**
      * 域名最少由两部分组成 xxx.xxx，但是本地域名可以是任意的
      */
-    private static final Pattern DOMAIN_PATTERN = Pattern.compile("(?:((?:[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9]?\\.))+[a-z]{2,6})\\s*)+?",
-            Pattern.CASE_INSENSITIVE | Pattern.UNIX_LINES);
+    private static final Pattern DOMAIN_PATTERN = Pattern
+            .compile("(?:((?:[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9]?\\.))+[a-z]{2,6})\\s*)+?",
+                    Pattern.CASE_INSENSITIVE | Pattern.UNIX_LINES);
 
-    private static final Pattern SELF_DOMAIN_PATTERN = Pattern.compile("(?:((?:[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9]?\\.))*[a-z]{2,})\\s*)+?",
-            Pattern.CASE_INSENSITIVE | Pattern.UNIX_LINES);
+    private static final Pattern SELF_DOMAIN_PATTERN = Pattern
+            .compile("(?:((?:[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9]?\\.))*[a-z]{2,})\\s*)+?",
+                    Pattern.CASE_INSENSITIVE | Pattern.UNIX_LINES);
 
-    public static List<String> getDomainList(String input){
+    public static List<String> getDomainList(String input) {
         Matcher domainMatcher = DOMAIN_PATTERN.matcher(input);
         List<String> domainList = Lists.newArrayList();
-        while (domainMatcher.find()){
+        while (domainMatcher.find()) {
             domainList.add(domainMatcher.group(1));
         }
         return domainList;
     }
 
-    public static List<String> getSelfDomainList(String input){
+    public static List<String> getSelfDomainList(String input) {
         // 本地域名
         Matcher domainMatcher = SELF_DOMAIN_PATTERN.matcher(input);
         List<String> domainList = Lists.newArrayList();
-        while (domainMatcher.find()){
+        while (domainMatcher.find()) {
             domainList.add(domainMatcher.group(1));
         }
         return domainList;
     }
 
-    public static String getIPText(String text){
+    public static String getIPText(String text) {
         Matcher matcher = IP_PATTERN.matcher(text);
-        if (matcher.find()){
+        if (matcher.find()) {
             return matcher.group(1);
         }
         return "";
     }
 
-    public static long getIPLong(String text){
+    public static long getIPLong(String text) {
         return ipToLong(getIPText(text));
     }
 
@@ -65,7 +67,7 @@ public class IPDomainUtil {
      * @return
      */
     public static String longToIP(long longIp) {
-        if (longIp < 0){
+        if (longIp < 0) {
             return "";
         }
         StringBuilder sb = new StringBuilder();
@@ -84,12 +86,12 @@ public class IPDomainUtil {
      * @return
      */
     public static long ipToLong(String ipStr) {
-        if (StringUtils.isBlank(ipStr)){
+        if (StringUtils.isBlank(ipStr)) {
             return -1;
         }
         long ip = 0;
         String[] attrs = ipStr.split("\\.");
-        if (attrs.length != 4){
+        if (attrs.length != 4) {
             throw new RuntimeException("IP 格式错误 ipStr=" + ipStr);
         }
         for (String ipByte : attrs) {
@@ -103,7 +105,7 @@ public class IPDomainUtil {
     }
 
     public static boolean isSelfDomain(String input) {
-        return  SELF_DOMAIN_PATTERN.matcher(input).matches();
+        return SELF_DOMAIN_PATTERN.matcher(input).matches();
     }
 
     public static boolean isIp(String input) {

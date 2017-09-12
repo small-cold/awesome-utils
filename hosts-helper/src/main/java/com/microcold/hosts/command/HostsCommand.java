@@ -3,11 +3,11 @@ package com.microcold.hosts.command;
 import com.google.common.collect.Lists;
 import com.microcold.hosts.conf.Config;
 import com.microcold.hosts.conf.ConfigBean;
-import com.microcold.hosts.operate.HostBean;
 import com.microcold.hosts.operate.HostsOperator;
 import com.microcold.hosts.operate.HostsOperatorCategory;
 import com.microcold.hosts.operate.HostsOperatorFactory;
 import com.microcold.hosts.utils.IPDomainUtil;
+import com.microcold.hosts.view.controller.HostsSearchResult;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -137,12 +137,9 @@ public class HostsCommand {
 
     private static void switchByDomain(String domain, boolean disabled) throws IOException {
         HostsOperator hostsOperator = HostsOperatorFactory.getSystemHostsOperator().init();
-        List<HostBean> hostBeanList = hostsOperator.search(domain);
-        int index = 0;
-        for (HostBean hostBean : hostBeanList) {
-            logger.info(index + ". " + (hostBean.isEnable() ? "[启用]" : "[禁用]")
-                    + IPDomainUtil.longToIP(hostBean.getIp()));
-            index++;
+        List<HostsSearchResult> hostBeanList = hostsOperator.search(domain);
+        for (HostsSearchResult hostBean : hostBeanList) {
+            logger.info(hostBean.getId() + ". " + hostBean.getDescription());
         }
         logger.info("请输入要切换的IP或要启用的配置序号(默认为127.0.0.1):");
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -154,7 +151,7 @@ public class HostsCommand {
             hostsOperator.changeStatus(opt, domain, !disabled);
         } else if (opt.matches("[0-9]+")) {
             int indexSelected = Integer.parseInt(opt);
-            hostBeanList.get(indexSelected).setEnable(!disabled);
+            hostsOperator.enable(indexSelected, !disabled);
         }
         hostsOperator.flush();
     }

@@ -8,14 +8,13 @@ public enum EnumOS {
     MacOS("MacOS"),
     Linux("Linux"),
     Windows("Windows"),
-    OTHER("Other"),
-    ;
+    OTHER("Other"),;
 
-    private EnumOS(String desc){
+    private EnumOS(String desc) {
         this.description = desc;
     }
 
-    public String toString(){
+    public String toString() {
         return description;
     }
 
