@@ -73,10 +73,10 @@ public class HostsHelperApp extends Application {
             callBack.setValue(th -> {
                 if (th == null || th instanceof PermissionIOException) {
                     passwordDialog.show();
-                    return 0;
+                    return 1;
                 } else {
                     DialogUtils.createExceptionDialog("未知错误", th);
-                    return 9;
+                    return 0;
                 }
             });
         }

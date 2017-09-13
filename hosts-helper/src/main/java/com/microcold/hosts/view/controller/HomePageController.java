@@ -107,7 +107,8 @@ public class HomePageController implements Initializable {
                     hostsOperator.flush();
                 }
             } catch (IOException e) {
-                System.exit(callbackObjectProperty.getValue().call(e));
+                hostProperty.enableProperty().setValue(!hostProperty.enableProperty().get());
+                callbackObjectProperty.getValue().call(e);
                 LOGGER.error("保存hosts状态失败", e);
             }
             return hostProperty.enableProperty();
@@ -229,8 +230,12 @@ public class HomePageController implements Initializable {
                 hostsOperator.flush();
             }
         } catch (IOException e) {
-            callbackObjectProperty.get().call(e);
-            LOGGER.error("保存hosts IP 失败", e);
+            Integer result = getCallbackObjectProperty().getValue().call(e);
+            if (result == 1){
+                saveIP(event);
+            }else {
+                LOGGER.error("保存hosts IP 失败 result = " + result, e);
+            }
         }
     }
 
@@ -242,8 +247,12 @@ public class HomePageController implements Initializable {
                 hostsOperator.flush();
             }
         } catch (IOException e) {
-            getCallbackObjectProperty().getValue().call(e);
-            LOGGER.error("保存hosts 域名失败", e);
+            Integer result = getCallbackObjectProperty().getValue().call(e);
+            if (result == 1){
+                saveDomain(event);
+            }else {
+                LOGGER.error("保存hosts 域名 失败 result = " + result, e);
+            }
         }
     }
 
@@ -255,8 +264,12 @@ public class HomePageController implements Initializable {
                 hostsOperator.flush();
             }
         } catch (IOException e) {
-            getCallbackObjectProperty().getValue().call(e);
-            LOGGER.error("保存hosts备注失败", e);
+            Integer result = getCallbackObjectProperty().getValue().call(e);
+            if (result == 1){
+                saveComment(event);
+            }else {
+                LOGGER.error("保存hosts 备注 失败 result = " + result, e);
+            }
         }
     }
 
@@ -272,6 +285,7 @@ public class HomePageController implements Initializable {
         final ObservableList<HostProperty> data = FXCollections.observableArrayList(
                 hostProperty -> new Observable[] { hostProperty.enableProperty() });
         data.addAll(hostList);
+        hostsTableView.setEditable(!getHostsOperator().isOnlyRead());
         hostsTableView.setItems(data);
         hostsTableView.refresh();
     }
