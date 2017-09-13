@@ -55,7 +55,7 @@ import java.util.Map;
  */
 public class SearchPopover extends Popover {
     private final SearchBox searchBox;
-    private HomePageController indexSearcher;
+    private HomePageController homePageController;
     private Tooltip searchErrorTooltip = null;
     private Timeline searchErrorTooltipHidder = null;
     private SearchResultPopoverList searchResultPopoverList;
@@ -63,7 +63,7 @@ public class SearchPopover extends Popover {
     public SearchPopover(final SearchBox searchBox, HomePageController pageBrowser) {
         super();
         this.searchBox = searchBox;
-        this.indexSearcher = pageBrowser;
+        this.homePageController = pageBrowser;
         this.searchResultPopoverList = new SearchResultPopoverList(pageBrowser);
         getStyleClass().add("right-tooth");
         setPrefWidth(400);
@@ -85,8 +85,9 @@ public class SearchPopover extends Popover {
                 t.consume();
                 if (t.getEventType() == KeyEvent.KEY_PRESSED) {
                     HostsSearchResult selectedItem = searchResultPopoverList.getSelectionModel().getSelectedItem();
-                    if (selectedItem != null)
-                        searchResultPopoverList.itemClicked(selectedItem);
+                    if (selectedItem != null){
+                        searchResultPopoverList.itemClicked(selectedItem, t.isShiftDown());
+                    }
                 }
             }
         });
@@ -107,7 +108,7 @@ public class SearchPopover extends Popover {
             return;
         }
         boolean haveResults = false;
-        Map<HostsOperator, List<HostsSearchResult>> results = indexSearcher.search(searchBox.getText());
+        Map<HostsOperator, List<HostsSearchResult>> results = homePageController.search(searchBox.getText());
         // check if we have any results
         for (List<HostsSearchResult> categoryResults : results.values()) {
             if (categoryResults.size() > 0) {

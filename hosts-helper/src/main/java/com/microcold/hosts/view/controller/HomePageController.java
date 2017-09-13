@@ -7,6 +7,7 @@ import com.microcold.hosts.operate.HostBean;
 import com.microcold.hosts.operate.HostsOperator;
 import com.microcold.hosts.operate.HostsOperatorCategory;
 import com.microcold.hosts.operate.HostsOperatorFactory;
+import com.microcold.hosts.utils.IPDomainUtil;
 import com.microcold.hosts.view.DialogUtils;
 import com.microcold.hosts.view.properties.HostProperty;
 import com.microcold.hosts.view.properties.HostsOperatorProperty;
@@ -70,6 +71,8 @@ public class HomePageController implements Initializable {
     @FXML
     public TreeView<HostsOperatorProperty> hostsFileTreeView;
 
+    private Map<HostsOperator, TreeItem<HostsOperatorProperty>> treeItemMap = Maps.newHashMap();
+
     @FXML
     public TreeItem<HostsOperatorProperty> sysHostsOperatorTreeItem;
     @FXML
@@ -116,7 +119,7 @@ public class HomePageController implements Initializable {
         StringConverter<String> sc = new StringConverter<String>() {
             @Override
             public String toString(String t) {
-                return t == null ? null : t.toString();
+                return t;
             }
 
             @Override
@@ -135,7 +138,7 @@ public class HomePageController implements Initializable {
         hostsFileTreeView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         sysHostsOperatorTreeItem.setValue(new HostsOperatorProperty()
                 .setHostsOperator(HostsOperatorFactory.getSystemHostsOperator()));
-
+        treeItemMap.put(HostsOperatorFactory.getSystemHostsOperator(), sysHostsOperatorTreeItem);
         hostsFileTreeView.setShowRoot(false);
         rootTreeItem.setExpanded(true);
         try {
@@ -153,9 +156,10 @@ public class HomePageController implements Initializable {
     private void addTreeItem(TreeItem<HostsOperatorProperty> parentItem, HostsOperatorCategory hostsOperatorCategory) {
         if (CollectionUtils.isNotEmpty(hostsOperatorCategory.getHostsOperatorList())) {
             for (HostsOperator hostsOperator : hostsOperatorCategory.getHostsOperatorList()) {
-                parentItem.getChildren().add(
-                        new TreeItem<>(new HostsOperatorProperty()
-                                .setHostsOperator(hostsOperator)));
+                TreeItem<HostsOperatorProperty> treeItem =  new TreeItem<>(new HostsOperatorProperty()
+                        .setHostsOperator(hostsOperator));
+                parentItem.getChildren().add(treeItem);
+                treeItemMap.put(hostsOperator, treeItem);
             }
         }
         if (CollectionUtils.isNotEmpty(hostsOperatorCategory.getSubCategoryList())) {
@@ -288,6 +292,7 @@ public class HomePageController implements Initializable {
         hostsTableView.setEditable(!getHostsOperator().isOnlyRead());
         hostsTableView.setItems(data);
         hostsTableView.refresh();
+        hostsTableView.requestFocus();
     }
 
     public Map<HostsOperator, List<HostsSearchResult>> search(String key) {
@@ -299,11 +304,52 @@ public class HomePageController implements Initializable {
         return result;
     }
 
-    public void getToItem(Integer id) {
-        if (id != null && id >= 0 && CollectionUtils.isNotEmpty(hostList)) {
+    /**
+     * 找到对应的节点
+     * @param result 搜索结果
+     * @param isSwitch 是否切换
+     */
+    public void getToItem(HostsSearchResult result, boolean isSwitch) {
+        // 如果切换
+        if (isSwitch){
+            // 页面切换到系统
+            if (getHostsOperator() != sysHostsOperatorTreeItem.getValue().getHostsOperator()){
+                selectSysHostsItem(() -> {
+                    setHostsOperator(sysHostsOperatorTreeItem.getValue().getHostsOperator());
+                    refreshData();
+                    return sysHostsOperatorTreeItem.getValue().getHostsOperator();
+                });
+            }
+
+            // 搜索结果不是系统的
+            if (result.getHostsOperator() != getHostsOperator()){
+                HostBean hostBean = result.getHostsOperator().get(result.getId());
+                getHostsOperator().saveHost(hostBean);
+            }else if (result.isEnable()){
+                getHostsOperator().changeStatus(IPDomainUtil.SELF_IP, result.getDomain(),
+                        !IPDomainUtil.SELF_IP.equals(result.getIp()));
+            }else if (!result.isEnable()){
+                getHostsOperator().enable(result.getId(),true);
+            }
+            if (getHostsOperator().isChanged()){
+                try {
+                    getHostsOperator().flush();
+                } catch (IOException e) {
+                    LOGGER.error(e);
+                }
+                refreshData();
+            }
+        }else if (result.getHostsOperator() != getHostsOperator()){
+            // 激活tree
+            hostsFileTreeView.getSelectionModel().select(treeItemMap.get(result.getHostsOperator()));
+            setHostsOperator(result.getHostsOperator());
+            refreshData();
+        }
+        // 定位到
+        if (CollectionUtils.isNotEmpty(hostList)) {
             int index = 0;
             for (HostProperty hostProperty : hostList) {
-                if (hostProperty.idProperty().get() == id) {
+                if (hostProperty.idProperty().get() == result.getId()) {
                     hostsTableView.getSelectionModel().select(hostProperty);
                     hostsTableView.scrollTo(index > 6 ? index - 2 : 0);
                     // hostsTableView.getFocusModel().focus(index);

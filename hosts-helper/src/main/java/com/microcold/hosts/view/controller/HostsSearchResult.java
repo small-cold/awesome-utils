@@ -2,6 +2,7 @@ package com.microcold.hosts.view.controller;
 
 import com.microcold.hosts.operate.HostBean;
 import com.microcold.hosts.operate.HostsOperator;
+import com.microcold.hosts.utils.IPDomainUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -18,6 +19,10 @@ public class HostsSearchResult {
 
     private int id;
 
+    private String domain;
+    private boolean enable;
+    private String ip;
+
     private String title;
 
     private String description;
@@ -26,8 +31,11 @@ public class HostsSearchResult {
 
     public HostsSearchResult(HostsOperator hostsOperator, HostBean hostBean) {
         this.hostsOperator = hostsOperator;
-        id = hostBean.getId();
+        id = hostBean.getId() == null? hostsOperator.getHostBeanList().size() -1: hostBean.getId();
         title = hostBean.getDomain();
         description = hostBean.toString();
+        domain = hostBean.getDomain();
+        enable = hostBean.isEnable();
+        ip = IPDomainUtil.longToIP(hostBean.getIp());
     }
 }

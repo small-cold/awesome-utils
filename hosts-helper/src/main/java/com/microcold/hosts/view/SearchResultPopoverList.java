@@ -72,9 +72,9 @@ public class SearchResultPopoverList extends PopoverTreeList<HostsSearchResult> 
     }
 
     @Override
-    public void itemClicked(HostsSearchResult item) {
+    public void itemClicked(HostsSearchResult result, boolean isSwitch) {
         popover.hide();
-        pageBrowser.getToItem(item.getId());
+        pageBrowser.getToItem(result, isSwitch);
     }
 
     @Override
@@ -278,7 +278,7 @@ public class SearchResultPopoverList extends PopoverTreeList<HostsSearchResult> 
 
         @Override
         public void handle(Event t) {
-            itemClicked(getItem());
+            itemClicked(getItem(), false);
         }
     }
 }

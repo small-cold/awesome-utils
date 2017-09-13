@@ -252,7 +252,7 @@ public class HostsHelperApp extends Application {
                     bufferedReader.readLine();
                 }
                 Platform.runLater(() -> {
-                    // when succeeded add this stylesheet to the scene
+                    // when succeeded switchTo this stylesheet to the scene
                     scene.getStylesheets().add(EXTERNAL_STYLESHEET);
                 });
             } catch (MalformedURLException ex) {

@@ -62,7 +62,7 @@ public class PopoverTreeList<T> extends ListView<T> implements Callback<ListView
         return new TreeItemListCell();
     }
 
-    protected void itemClicked(T item) {
+    protected void itemClicked(T item, boolean isSwitch) {
     }
 
     private class TreeItemListCell extends ListCell<T> implements EventHandler<MouseEvent> {
@@ -76,7 +76,7 @@ public class PopoverTreeList<T> extends ListView<T> implements Callback<ListView
 
         @Override
         public void handle(MouseEvent t) {
-            itemClicked(getItem());
+            itemClicked(getItem(), t.isShiftDown());
         }
 
         @Override

@@ -172,8 +172,8 @@ public class HostsOperator {
      *
      * @param hostBean
      */
-    public boolean saveHost(HostBean hostBean) throws IOException {
-        if (hostBean == null) {
+    public boolean saveHost(HostBean hostBean){
+        if (hostBean == null || getHostBeanList().contains(hostBean)) {
             return false;
         }
         if (!hostBean.isValid()) {
@@ -187,7 +187,7 @@ public class HostsOperator {
         return true;
     }
 
-    public void changeStatus(String ipStr, String domain, boolean enable) throws IOException {
+    public void changeStatus(String ipStr, String domain, boolean enable){
         if (enable) {
             enable(IPDomainUtil.ipToLong(ipStr), domain);
         } else {
@@ -195,7 +195,7 @@ public class HostsOperator {
         }
     }
 
-    private void disable(long ip, String domain) throws IOException {
+    private void disable(long ip, String domain){
         if (StringUtils.isBlank(domain)) {
             throw new RuntimeException("禁用域名不能为空");
         }
@@ -214,7 +214,7 @@ public class HostsOperator {
         }
     }
 
-    private void enable(long ip, String domain) throws IOException {
+    private void enable(long ip, String domain){
         if (ip < 0) {
             throw new RuntimeException("启用IP无效");
         }
@@ -241,11 +241,11 @@ public class HostsOperator {
                 existHostBean.setEnable(true);
                 isChanged = true;
             }
-            HostBean newHostBean = new HostBean(ip, domain, true);
-            if (!getHostBeanList().contains(newHostBean)) {
-                getHostBeanList().add(newHostBean);
-                isChanged = true;
-            }
+        }
+        HostBean newHostBean = new HostBean(ip, domain, true);
+        if (!getHostBeanList().contains(newHostBean)) {
+            getHostBeanList().add(newHostBean);
+            isChanged = true;
         }
     }
 
@@ -312,20 +312,18 @@ public class HostsOperator {
         return IPSet;
     }
 
-    public boolean enable(int i, boolean enable) throws IOException {
+    public boolean enable(int i, boolean enable){
         if (i < 0 || i >= hostBeanList.size()) {
             return false;
         }
         HostBean hostBean = hostBeanList.get(i);
-        if (enable != hostBean.isEnable()) {
-            hostBean.setEnable(enable);
-            isChanged = true;
-            return true;
+        if (hostBean.isEnable() != enable){
+            enable(hostBean.getIp(), hostBean.getDomain());
         }
         return true;
     }
 
-    public boolean saveDomain(int i, @NonNull String domain) throws IOException {
+    public boolean saveDomain(int i, @NonNull String domain){
         if (i < 0 || i >= hostBeanList.size()) {
             return false;
         }
@@ -346,7 +344,7 @@ public class HostsOperator {
         return false;
     }
 
-    public boolean saveIp(int i, @NonNull String ipStr) throws IOException {
+    public boolean saveIp(int i, @NonNull String ipStr){
         if (i < 0 || i >= hostBeanList.size()) {
             return false;
         }
@@ -370,7 +368,7 @@ public class HostsOperator {
         return getHostBeanList().get(i);
     }
 
-    public boolean saveComment(int i, String newValue) throws IOException {
+    public boolean saveComment(int i, String newValue){
         if (i < 0 || i >= hostBeanList.size()) {
             return false;
         }
