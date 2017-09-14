@@ -2,7 +2,6 @@ package com.microcold.hosts.view.controller;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.microcold.hosts.conf.Config;
 import com.microcold.hosts.operate.HostBean;
 import com.microcold.hosts.operate.HostsOperator;
 import com.microcold.hosts.operate.HostsOperatorCategory;
@@ -27,6 +26,8 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
@@ -42,7 +43,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.concurrent.Callable;
 
 /*
  * Created by MicroCold on 2017/9/4.
@@ -78,10 +78,16 @@ public class HomePageController implements Initializable {
     @FXML
     public TreeItem<HostsOperatorProperty> rootTreeItem;
 
+    public HomePageController setHostsOperator(HostsOperator hostsOperator) {
+        if (hostsOperator != null) {
+            this.hostsOperator = hostsOperator;
+        }
+        return this;
+    }
+
     /**
      * 当前hosts操作类
      */
-    @Setter
     private HostsOperator hostsOperator;
 
     private List<HostProperty> hostList;
@@ -146,7 +152,7 @@ public class HomePageController implements Initializable {
         } catch (IOException e) {
             DialogUtils.createExceptionDialog("加载Hosts文件异常", e);
         }
-        selectSysHostsItem(null);
+        activeShowSysHosts();
         hostsFileTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             // 应该在这里调用
             refreshCurrentHostsOperator(observable.getValue().getValue());
@@ -156,7 +162,7 @@ public class HomePageController implements Initializable {
     private void addTreeItem(TreeItem<HostsOperatorProperty> parentItem, HostsOperatorCategory hostsOperatorCategory) {
         if (CollectionUtils.isNotEmpty(hostsOperatorCategory.getHostsOperatorList())) {
             for (HostsOperator hostsOperator : hostsOperatorCategory.getHostsOperatorList()) {
-                TreeItem<HostsOperatorProperty> treeItem =  new TreeItem<>(new HostsOperatorProperty()
+                TreeItem<HostsOperatorProperty> treeItem = new TreeItem<>(new HostsOperatorProperty()
                         .setHostsOperator(hostsOperator));
                 parentItem.getChildren().add(treeItem);
                 treeItemMap.put(hostsOperator, treeItem);
@@ -173,16 +179,14 @@ public class HomePageController implements Initializable {
         }
     }
 
-    private void selectSysHostsItem(Callable<HostsOperator> callable) {
+    public void requestFocus(){
+        hostsTableView.requestFocus();
+    }
+
+    public void activeShowSysHosts() {
         hostsFileTreeView.getSelectionModel().select(sysHostsOperatorTreeItem);
-        if (callable == null) {
-            return;
-        }
-        try {
-            callable.call();
-        } catch (Exception e) {
-            LOGGER.error("选中系统节点回调出错", e);
-        }
+        setHostsOperator(HostsOperatorFactory.getSystemHostsOperator());
+        refreshData();
     }
 
     @FXML
@@ -194,27 +198,7 @@ public class HomePageController implements Initializable {
                     .getValue();
             if (mouseEvent.getClickCount() == 2 && hostsOperatorProperty.getHostsOperator() != null) {
                 // 检查管理员密码
-                if (!Config.checkAdminPassword()) {
-                    getCallbackObjectProperty().getValue().call(null);
-                } else {
-                    try {
-                        HostsOperatorFactory.getSystemHostsOperator().switchTo(
-                                HostsOperatorFactory.getCommonHostsOperator(),
-                                hostsOperatorProperty.getHostsOperator());
-                        // TODO 自动备份
-                        if (HostsOperatorFactory.getSystemHostsOperator().isChanged()) {
-                            HostsOperatorFactory.getSystemHostsOperator().flush();
-                            messageLabel.setText("当前使用【" + hostsOperatorProperty.getHostsOperator().getName() + "】");
-                            selectSysHostsItem(() -> {
-                                setHostsOperator(HostsOperatorFactory.getSystemHostsOperator());
-                                refreshData();
-                                return HostsOperatorFactory.getSystemHostsOperator();
-                            });
-                        }
-                    } catch (IOException e) {
-                        DialogUtils.createExceptionDialog("系统hosts为只读", e);
-                    }
-                }
+                sysHostsSwitchTo(hostsOperatorProperty.getHostsOperator());
             }
         }
     }
@@ -235,9 +219,9 @@ public class HomePageController implements Initializable {
             }
         } catch (IOException e) {
             Integer result = getCallbackObjectProperty().getValue().call(e);
-            if (result == 1){
+            if (result == 1) {
                 saveIP(event);
-            }else {
+            } else {
                 LOGGER.error("保存hosts IP 失败 result = " + result, e);
             }
         }
@@ -252,9 +236,9 @@ public class HomePageController implements Initializable {
             }
         } catch (IOException e) {
             Integer result = getCallbackObjectProperty().getValue().call(e);
-            if (result == 1){
+            if (result == 1) {
                 saveDomain(event);
-            }else {
+            } else {
                 LOGGER.error("保存hosts 域名 失败 result = " + result, e);
             }
         }
@@ -269,9 +253,9 @@ public class HomePageController implements Initializable {
             }
         } catch (IOException e) {
             Integer result = getCallbackObjectProperty().getValue().call(e);
-            if (result == 1){
+            if (result == 1) {
                 saveComment(event);
-            }else {
+            } else {
                 LOGGER.error("保存hosts 备注 失败 result = " + result, e);
             }
         }
@@ -292,7 +276,7 @@ public class HomePageController implements Initializable {
         hostsTableView.setEditable(!getHostsOperator().isOnlyRead());
         hostsTableView.setItems(data);
         hostsTableView.refresh();
-        hostsTableView.requestFocus();
+        // hostsTableView.requestFocus();
     }
 
     public Map<HostsOperator, List<HostsSearchResult>> search(String key) {
@@ -306,44 +290,41 @@ public class HomePageController implements Initializable {
 
     /**
      * 找到对应的节点
-     * @param result 搜索结果
+     *
+     * @param result   搜索结果
      * @param isSwitch 是否切换
      */
     public void getToItem(HostsSearchResult result, boolean isSwitch) {
         // 如果切换
-        if (isSwitch){
+        if (isSwitch) {
             // 页面切换到系统
-            if (getHostsOperator() != sysHostsOperatorTreeItem.getValue().getHostsOperator()){
-                selectSysHostsItem(() -> {
-                    setHostsOperator(sysHostsOperatorTreeItem.getValue().getHostsOperator());
-                    refreshData();
-                    return sysHostsOperatorTreeItem.getValue().getHostsOperator();
-                });
+            if (getHostsOperator() != sysHostsOperatorTreeItem.getValue().getHostsOperator()) {
+                activeShowSysHosts();
             }
-
             // 搜索结果不是系统的
-            if (result.getHostsOperator() != getHostsOperator()){
+            if (result.getHostsOperator() != getHostsOperator()) {
                 HostBean hostBean = result.getHostsOperator().get(result.getId());
                 getHostsOperator().saveHost(hostBean);
-            }else if (result.isEnable()){
+            } else if (result.isEnable()) {
                 getHostsOperator().changeStatus(IPDomainUtil.SELF_IP, result.getDomain(),
                         !IPDomainUtil.SELF_IP.equals(result.getIp()));
-            }else if (!result.isEnable()){
-                getHostsOperator().enable(result.getId(),true);
+            } else if (!result.isEnable()) {
+                getHostsOperator().enable(result.getId(), true);
             }
-            if (getHostsOperator().isChanged()){
-                try {
-                    getHostsOperator().flush();
-                } catch (IOException e) {
-                    LOGGER.error(e);
-                }
-                refreshData();
-            }
-        }else if (result.getHostsOperator() != getHostsOperator()){
+        } else if (result.getHostsOperator() != getHostsOperator()) {
             // 激活tree
             hostsFileTreeView.getSelectionModel().select(treeItemMap.get(result.getHostsOperator()));
             setHostsOperator(result.getHostsOperator());
             refreshData();
+        }
+        // 自动保存
+        if (getHostsOperator().isChanged()) {
+            try {
+                getHostsOperator().flush();
+                refreshData();
+            } catch (IOException e) {
+                getCallbackObjectProperty().getValue().call(e);
+            }
         }
         // 定位到
         if (CollectionUtils.isNotEmpty(hostList)) {
@@ -360,6 +341,33 @@ public class HomePageController implements Initializable {
                     break;
                 }
                 index++;
+            }
+        }
+    }
+
+    public void treeKeyPressed(KeyEvent keyEvent) {
+        if (keyEvent.getCode() == KeyCode.ENTER) {
+            if (hostsFileTreeView.getSelectionModel().getSelectedItem().getValue() != null) {
+                sysHostsSwitchTo(hostsFileTreeView.getSelectionModel().getSelectedItem().getValue().getHostsOperator());
+            }
+        }
+    }
+
+    private void sysHostsSwitchTo(HostsOperator newHostsOperator) {
+        if (newHostsOperator == null){
+            return;
+        }
+        HostsOperator hostsOperator = HostsOperatorFactory.getSystemHostsOperator();
+        hostsOperator.switchTo(HostsOperatorFactory.getCommonHostsOperator(), newHostsOperator);
+        if (HostsOperatorFactory.getSystemHostsOperator().isChanged()) {
+            try {
+                HostsOperatorFactory.getSystemHostsOperator().flush();
+                messageLabel.setText("当前使用【" + newHostsOperator.getName() + "】");
+                activeShowSysHosts();
+            } catch (IOException e) {
+                // FIXME 应该直接调用undo 方法
+                hostsOperator.init();
+                getCallbackObjectProperty().getValue().call(e);
             }
         }
     }

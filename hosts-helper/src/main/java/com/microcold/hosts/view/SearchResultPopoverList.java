@@ -94,7 +94,7 @@ public class SearchResultPopoverList extends PopoverTreeList<HostsSearchResult> 
 
     @Override
     public String getPageTitle() {
-        return "搜索结果";
+        return "搜索结果([⇧+↵]快速切换)";
     }
 
     @Override
@@ -257,7 +257,7 @@ public class SearchResultPopoverList extends PopoverTreeList<HostsSearchResult> 
                     icon.getStyleClass().setAll("icon");
                 }
                 icon.setText(result.getHostsOperator().getName());
-                details.setText(result.getDescription());
+                details.setText(result.getDetail());
             }
         }
 

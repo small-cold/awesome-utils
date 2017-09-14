@@ -24,6 +24,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -52,6 +53,7 @@ public class HostsHelperApp extends Application {
     private Scene scene;
     private Pane root;
     private TitledToolBar toolBar;
+    private Button homeButton;
 
     private MenuBar menuBar;
     private final SearchBox searchBox = new SearchBox();
@@ -120,6 +122,15 @@ public class HostsHelperApp extends Application {
 
         searchPopover = new SearchPopover(searchBox, homePageController);
         root.getChildren().add(searchPopover);
+
+        root.setOnKeyReleased(event -> {
+            if (event.isShortcutDown() && event.getCode() == KeyCode.F) {
+                searchBox.requestFocus();
+            }
+            if (event.isShortcutDown() && event.isShiftDown() && event.getCode() == KeyCode.H) {
+                homeButton.fire();
+            }
+        });
     }
 
     private void initAdminPasswordDialog() {
@@ -157,10 +168,20 @@ public class HostsHelperApp extends Application {
         forwardButton.setId("forward");
         forwardButton.getStyleClass().add("center-pill");
         forwardButton.setPrefSize(TOOL_BAR_BUTTON_SIZE, TOOL_BAR_BUTTON_SIZE);
-        Button homeButton = new Button();
+        homeButton = new Button();
         homeButton.setId("home");
         homeButton.setPrefSize(TOOL_BAR_BUTTON_SIZE, TOOL_BAR_BUTTON_SIZE);
         homeButton.getStyleClass().add("right-pill");
+        homeButton.setOnAction(event -> {
+            homePageController.activeShowSysHosts();
+            homePageController.requestFocus();
+        });
+        homeButton.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER || event.getCode() == KeyCode.SPACE){
+                homePageController.activeShowSysHosts();
+                homePageController.requestFocus();
+            }
+        });
         HBox navButtons = new HBox(0, backButton, forwardButton, homeButton);
         ToggleButton listButton = new ToggleButton();
         listButton.setId("list");

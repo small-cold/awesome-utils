@@ -20,7 +20,7 @@ public class SearchBox extends TextField implements ChangeListener<String> {
         getStyleClass().addAll("search-box");
         icon.getStyleClass().setAll("search-box-icon");
         innerBackground.getStyleClass().setAll("search-box-inner");
-        setPromptText("Search");
+        setPromptText("搜索");
         textProperty().addListener(this);
         setPrefHeight(30);
         clearButton.getStyleClass().setAll("search-clear-button");

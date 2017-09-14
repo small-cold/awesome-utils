@@ -139,7 +139,7 @@ public class HostsCommand {
         HostsOperator hostsOperator = HostsOperatorFactory.getSystemHostsOperator().init();
         List<HostsSearchResult> hostBeanList = hostsOperator.search(domain);
         for (HostsSearchResult hostBean : hostBeanList) {
-            logger.info(hostBean.getId() + ". " + hostBean.getDescription());
+            logger.info(hostBean.getId() + ". " + hostBean.toString());
         }
         logger.info("请输入要切换的IP或要启用的配置序号(默认为127.0.0.1):");
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));

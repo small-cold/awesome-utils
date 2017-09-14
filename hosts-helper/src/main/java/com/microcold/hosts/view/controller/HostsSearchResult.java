@@ -19,13 +19,11 @@ public class HostsSearchResult {
 
     private int id;
 
+    private String title;
+    private String detail;
     private String domain;
     private boolean enable;
     private String ip;
-
-    private String title;
-
-    private String description;
 
     private int score;
 
@@ -33,9 +31,9 @@ public class HostsSearchResult {
         this.hostsOperator = hostsOperator;
         id = hostBean.getId() == null? hostsOperator.getHostBeanList().size() -1: hostBean.getId();
         title = hostBean.getDomain();
-        description = hostBean.toString();
         domain = hostBean.getDomain();
         enable = hostBean.isEnable();
+        detail = hostBean.toString();
         ip = IPDomainUtil.longToIP(hostBean.getIp());
     }
 }

@@ -123,9 +123,6 @@ public class HostsOperator {
                 fileWriter.write(hostBean.toString() + "\n");
             }
             setChanged(false);
-        } catch (IOException e) {
-            LOGGER.error("写入Hosts文件发生错误 file=" + file + ", hostBeanList=" + hostBeanList, e);
-            throw e;
         }
     }
 
@@ -255,7 +252,7 @@ public class HostsOperator {
      * @param otherHostsOperator
      * @param isBackup
      */
-    public void switchTo(HostsOperator... hostsOperators) throws IOException {
+    public void switchTo(HostsOperator... hostsOperators){
         if (hostsOperators == null) {
             return;
         }
