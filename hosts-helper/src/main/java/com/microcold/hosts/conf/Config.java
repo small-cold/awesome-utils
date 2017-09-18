@@ -1,6 +1,7 @@
 package com.microcold.hosts.conf;
 
 import com.google.common.collect.Lists;
+import com.microcold.hosts.resources.ControlResources;
 import com.microcold.hosts.utils.SystemUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -66,7 +67,7 @@ public class Config {
         } catch (IOException e) {
             logger.error("读取属性文件异常", e);
         }
-        String workPathStr = sysProperties.getProperty("work-path");
+        String workPathStr = sysProperties.getProperty("work-name");
         if (StringUtils.isBlank(workPathStr)) {
             workPathStr = "~/.config/awesome/hosts";
         }
@@ -150,6 +151,17 @@ public class Config {
             }
         }
         return hostsFile;
+    }
+
+    public static File getHostsFileRemote() throws IOException {
+        File remoteFile = new File(hostsFile, ControlResources.getString("remote-hosts-file"));
+        if (!remoteFile.exists()) {
+            boolean result = remoteFile.mkdirs();
+            if (!result) {
+                throw new IOException("创建hosts文件目录失败");
+            }
+        }
+        return remoteFile;
     }
 
     public static List<File> getHostsFileList() throws IOException {

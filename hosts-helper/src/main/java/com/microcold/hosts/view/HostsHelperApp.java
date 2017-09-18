@@ -6,29 +6,23 @@ package com.microcold.hosts.view;
 import com.microcold.hosts.conf.Config;
 import com.microcold.hosts.conf.ConfigBean;
 import com.microcold.hosts.exception.PermissionIOException;
-import com.microcold.hosts.view.controller.HomePageController;
+import com.microcold.hosts.resources.ControlResources;
+import com.microcold.hosts.view.controller.MainController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
-import javafx.geometry.Insets;
-import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -48,19 +42,17 @@ import java.util.logging.Level;
 public class HostsHelperApp extends Application {
 
     private static final int TOOL_BAR_BUTTON_SIZE = 30;
-    private static final String HOME_PAGE_FXML = "views/Home.fxml";
+    private static final String MAIN_PAGE_FXML = "views/Main.fxml";
+    private static final String PREFERENCES_PAGE_FXML = "views/Preferences.fxml";
 
     private Scene scene;
     private Pane root;
-    private TitledToolBar toolBar;
-    private Button homeButton;
+    // private TitledToolBar toolBar;
+    // private Button homeButton;
 
     private MenuBar menuBar;
-    private final SearchBox searchBox = new SearchBox();
-    private SearchPopover searchPopover;
 
-    private AnchorPane homePane;
-    private HomePageController homePageController;
+    private MainController mainController;
     private PasswordDialog passwordDialog;
 
     private ObjectProperty<Callback<Throwable, Integer>> callBack;
@@ -98,108 +90,100 @@ public class HostsHelperApp extends Application {
                 final double w = getWidth();
                 final double h = getHeight();
                 final double menuHeight = menuBar.prefHeight(w);
-                final double toolBarHeight = toolBar.prefHeight(w);
+                // final double toolBarHeight = toolBar.prefHeight(w);
                 if (menuBar != null) {
                     menuBar.resize(w, menuHeight);
                 }
-                toolBar.resizeRelocate(0, menuHeight, w, toolBarHeight);
-                homePane.setLayoutY(toolBarHeight + menuHeight + 5);
+                // toolBar.resizeRelocate(0, menuHeight, w, toolBarHeight);
+                // homePane.setLayoutY(toolBarHeight + menuHeight + 5);
                 // homePane.resize(w, h - toolBarHeight);
-                homePane.resize(w, h - toolBarHeight - menuHeight);
-                homePane.resizeRelocate(0, toolBarHeight + menuHeight + 5, w, h - toolBarHeight - menuHeight);
+                // homePane.resize(w, h - toolBarHeight - menuHeight);
+                // homePane.resizeRelocate(0, toolBarHeight + menuHeight + 5, w, h - toolBarHeight - menuHeight);
 
-                Point2D searchBoxBottomCenter = searchBox.localToScene(searchBox.getWidth() / 2, searchBox.getHeight());
-                searchPopover.setLayoutX(
-                        (int) searchBoxBottomCenter.getX() - searchPopover.getLayoutBounds().getWidth() + 50);
-                searchPopover.setLayoutY((int) searchBoxBottomCenter.getY() + 20);
             }
         };
         root.setMinHeight(720);
         root.setMinHeight(480);
         initSysMenu();
-        initToolBar();
         initHomePage();
-
-        searchPopover = new SearchPopover(searchBox, homePageController);
-        root.getChildren().add(searchPopover);
+        // initToolBar();
 
         root.setOnKeyReleased(event -> {
             if (event.isShortcutDown() && event.getCode() == KeyCode.F) {
-                searchBox.requestFocus();
+                mainController.rootKeyPressed(event);
             }
             if (event.isShortcutDown() && event.isShiftDown() && event.getCode() == KeyCode.H) {
-                homeButton.fire();
+                mainController.activeShowSysHosts();
             }
         });
     }
 
     private void initAdminPasswordDialog() {
         passwordDialog = new PasswordDialog();
-        passwordDialog.setTitle("请输入管理员密码（" + System.getProperty("user.name") + ")");
+        passwordDialog.setTitle("请输入管理员密码");
+        passwordDialog.setHeaderText("用户：" + System.getProperty("user.name"));
         passwordDialog.getDialogPane().setContentText("密码:");
-        // passwordDialog.show();
-        passwordDialog.setOnHidden(event -> {
-            // if (!event.isConsumed()){
-            //     createAlert("管理员密码",
-            //             "系统Hosts为只读状态，双击不能快速切换系统hosts", Alert.AlertType.WARNING);
-            // }else
-            if (StringUtils.isBlank(passwordDialog.getResult())) {
-                DialogUtils.createAlert("管理员密码为空",
-                        "系统Hosts为只读状态，双击不能快速切换系统hosts", Alert.AlertType.WARNING);
-            } else {
-                boolean result = Config.setAdminPassword(passwordDialog.getResult());
-                if (!result) {
-                    passwordDialog.setTitle("密码错误（" + System.getProperty("user.name") + ")");
-                    passwordDialog.show();
-                }
-            }
-        });
+        passwordDialog.show();
+        passwordDialog.setOnHidden(event -> saveAdminPassword());
     }
 
-    private void initToolBar() {
-        // CREATE TOOLBAR
-        toolBar = new TitledToolBar();
-        root.getChildren().add(toolBar);
-        Button backButton = new Button();
-        backButton.setId("back");
-        backButton.getStyleClass().add("left-pill");
-        backButton.setPrefSize(TOOL_BAR_BUTTON_SIZE, TOOL_BAR_BUTTON_SIZE);
-        Button forwardButton = new Button();
-        forwardButton.setId("forward");
-        forwardButton.getStyleClass().add("center-pill");
-        forwardButton.setPrefSize(TOOL_BAR_BUTTON_SIZE, TOOL_BAR_BUTTON_SIZE);
-        homeButton = new Button();
-        homeButton.setId("home");
-        homeButton.setPrefSize(TOOL_BAR_BUTTON_SIZE, TOOL_BAR_BUTTON_SIZE);
-        homeButton.getStyleClass().add("right-pill");
-        homeButton.setOnAction(event -> {
-            homePageController.activeShowSysHosts();
-            homePageController.requestFocus();
-        });
-        homeButton.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ENTER || event.getCode() == KeyCode.SPACE){
-                homePageController.activeShowSysHosts();
-                homePageController.requestFocus();
-            }
-        });
-        HBox navButtons = new HBox(0, backButton, forwardButton, homeButton);
-        ToggleButton listButton = new ToggleButton();
-        listButton.setId("list");
-        listButton.setPrefSize(TOOL_BAR_BUTTON_SIZE, TOOL_BAR_BUTTON_SIZE);
-        HBox.setMargin(listButton, new Insets(0, 0, 0, 7));
-        ToggleButton searchButton = new ToggleButton();
-        searchButton.setId("search");
-        searchButton.setPrefSize(TOOL_BAR_BUTTON_SIZE, TOOL_BAR_BUTTON_SIZE);
-        searchBox.setPrefWidth(200);
-        backButton.setGraphic(new Region());
-        forwardButton.setGraphic(new Region());
-        homeButton.setGraphic(new Region());
-        listButton.setGraphic(new Region());
-        searchButton.setGraphic(new Region());
-        toolBar.addLeftItems(navButtons, listButton);
-        toolBar.addRightItems(searchBox);
+    private void saveAdminPassword() {
 
+        if (StringUtils.isBlank(passwordDialog.getResult())) {
+            DialogUtils.createAlert("管理员密码为空",
+                    "系统Hosts为只读状态，双击不能快速切换系统hosts", Alert.AlertType.WARNING);
+        } else {
+            boolean result = Config.setAdminPassword(passwordDialog.getResult());
+            if (!result) {
+                passwordDialog.setTitle("密码错误（" + System.getProperty("user.name") + ")");
+                passwordDialog.show();
+            }else if(mainController != null){
+                mainController.refreshData();
+            }
+        }
     }
+
+    // private void initToolBar() {
+    //     // CREATE TOOLBAR
+    //     toolBar = new TitledToolBar();
+    //     root.getChildren().add(toolBar);
+    //     Button backButton = new Button();
+    //     backButton.setId("back");
+    //     backButton.getStyleClass().add("left-pill");
+    //     backButton.setPrefSize(TOOL_BAR_BUTTON_SIZE, TOOL_BAR_BUTTON_SIZE);
+    //     Button forwardButton = new Button();
+    //     forwardButton.setId("forward");
+    //     forwardButton.getStyleClass().add("center-pill");
+    //     forwardButton.setPrefSize(TOOL_BAR_BUTTON_SIZE, TOOL_BAR_BUTTON_SIZE);
+    //     homeButton = new Button();
+    //     homeButton.setId("home");
+    //     homeButton.setPrefSize(TOOL_BAR_BUTTON_SIZE, TOOL_BAR_BUTTON_SIZE);
+    //     homeButton.getStyleClass().add("right-pill");
+    //     homeButton.setOnAction(event -> {
+    //         mainController.activeShowSysHosts();
+    //         mainController.requestFocus();
+    //     });
+    //     homeButton.setOnKeyPressed(event -> {
+    //         if (event.getCode() == KeyCode.ENTER || event.getCode() == KeyCode.SPACE){
+    //             mainController.activeShowSysHosts();
+    //             mainController.requestFocus();
+    //         }
+    //     });
+    //     HBox navButtons = new HBox(0, backButton, forwardButton, homeButton);
+    //     ToggleButton listButton = new ToggleButton();
+    //     listButton.setId("list");
+    //     listButton.setPrefSize(TOOL_BAR_BUTTON_SIZE, TOOL_BAR_BUTTON_SIZE);
+    //     HBox.setMargin(listButton, new Insets(0, 0, 0, 7));
+    //     ToggleButton searchButton = new ToggleButton();
+    //     searchButton.setId("search");
+    //     searchButton.setPrefSize(TOOL_BAR_BUTTON_SIZE, TOOL_BAR_BUTTON_SIZE);
+    //     backButton.setGraphic(new Region());
+    //     forwardButton.setGraphic(new Region());
+    //     homeButton.setGraphic(new Region());
+    //     listButton.setGraphic(new Region());
+    //     searchButton.setGraphic(new Region());
+    //     toolBar.addLeftItems(navButtons, listButton);
+    // }
 
     private void initSysMenu() {
         menuBar = new MenuBar();
@@ -208,6 +192,9 @@ public class HostsHelperApp extends Application {
         fileMenu.getItems().addAll(
                 new MenuItem("新增"),
                 new MenuItem("保存"),
+                new SeparatorMenuItem(),
+                new MenuItem("新增远程地址"),
+                new MenuItem("下载全部"),
                 new SeparatorMenuItem(),
                 new MenuItem("另存为"),
                 new SeparatorMenuItem(),
@@ -235,15 +222,14 @@ public class HostsHelperApp extends Application {
     private void initHomePage() {
         FXMLLoader loader = new FXMLLoader();
         loader.setBuilderFactory(new JavaFXBuilderFactory());
-        loader.setLocation(HostsHelperApp.class.getClassLoader().getResource(HOME_PAGE_FXML));
-        try (InputStream in = HostsHelperApp.class.getClassLoader().getResourceAsStream(HOME_PAGE_FXML)) {
-            homePane = loader.load(in);
-            homePageController = loader.getController();
-            homePageController.setCallbackObjectProperty(callBackProperty());
+        loader.setLocation(HostsHelperApp.class.getClassLoader().getResource(MAIN_PAGE_FXML));
+        try (InputStream in = HostsHelperApp.class.getClassLoader().getResourceAsStream(MAIN_PAGE_FXML)) {
+            root.getChildren().add(0, loader.load(in));
+            mainController = loader.getController();
+            mainController.setCallbackObjectProperty(callBackProperty());
         } catch (Exception e) {
-            DialogUtils.createExceptionDialog("加载主页异常", e);
+            Platform.runLater(() -> DialogUtils.createExceptionDialog("加载主页异常", e));
         }
-        root.getChildren().add(0, homePane);
     }
 
     @Override
@@ -252,7 +238,7 @@ public class HostsHelperApp extends Application {
         setStylesheets();
         stage.setScene(scene);
         // stage.setResizable(true);
-        stage.setTitle("Hosts 助手");
+        stage.setTitle(ControlResources.getString("app-title"));
         stage.show();
         initAdminPasswordDialog();
     }

@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.microcold.hosts.view.SearchBox?>
+<?import com.microcold.hosts.view.SearchPopover?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
@@ -9,23 +12,25 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<AnchorPane fx:controller="com.microcold.hosts.view.controller.HomePageController"
+<BorderPane fx:id="root" fx:controller="com.microcold.hosts.view.controller.MainController"
             xmlns:fx="http://javafx.com/fxml"
-            minWidth="720" minHeight="540">
-    <BorderPane>
-        <left>
-            <VBox>
-                <TreeView fx:id="hostsFileTreeView" maxWidth="120" onMouseClicked="#refreshHostsTable" onKeyPressed="#treeKeyPressed" editable="true">
-                    <TreeItem fx:id="rootTreeItem">
-                        <children>
-                            <TreeItem fx:id="sysHostsOperatorTreeItem"/>
-                        </children>
-                    </TreeItem>
-                </TreeView>
-            </VBox>
-        </left>
-        <center>
-            <TableView fx:id="hostsTableView" minWidth="600" minHeight="400" editable="true">
+            onKeyPressed="#rootKeyPressed">
+    <left>
+        <VBox>
+            <TreeView fx:id="hostsFileTreeView" prefWidth="120" prefHeight="455" onMouseClicked="#refreshHostsTable"
+                      onKeyPressed="#treeKeyPressed" editable="true">
+                <TreeItem fx:id="rootTreeItem">
+                    <children>
+                        <TreeItem fx:id="sysHostsOperatorTreeItem"/>
+                    </children>
+                </TreeItem>
+            </TreeView>
+        </VBox>
+    </left>
+    <center>
+        <AnchorPane>
+            <SearchBox fx:id="searchBox" prefWidth="600"/>
+            <TableView fx:id="hostsTableView" prefWidth="600" prefHeight="420" layoutY="35" editable="true">
                 <columns>
                     <TableColumn text="启用" prefWidth="50" fx:id="enableCol">
                         <cellValueFactory>
@@ -44,19 +49,20 @@
                             <PropertyValueFactory property="domain"/>
                         </cellValueFactory>
                     </TableColumn>
-                    <TableColumn text="备注" prefWidth="150" onEditCommit="#saveComment" fx:id="commentCol">
+                    <TableColumn text="备注" prefWidth="230" onEditCommit="#saveComment" fx:id="commentCol">
                         <cellValueFactory>
                             <PropertyValueFactory property="comment"/>
                         </cellValueFactory>
                     </TableColumn>
                 </columns>
             </TableView>
-        </center>
-        <bottom>
-            <HBox>
-                <Label fx:id="messageLabel" id="messageLabel" alignment="BASELINE_LEFT"/>
-                <Label fx:id="errorMessageLabel" id="errorMessageLabel" alignment="BASELINE_RIGHT"/>
-            </HBox>
-        </bottom>
-    </BorderPane>
-</AnchorPane>
+            <SearchPopover fx:id="searchPopover" layoutY="40" prefWidth="450"/>
+        </AnchorPane>
+    </center>
+    <bottom>
+        <HBox>
+            <Label fx:id="messageLabel" id="messageLabel" alignment="BASELINE_LEFT"/>
+            <Label fx:id="errorMessageLabel" id="errorMessageLabel" alignment="BASELINE_RIGHT"/>
+        </HBox>
+    </bottom>
+</BorderPane>

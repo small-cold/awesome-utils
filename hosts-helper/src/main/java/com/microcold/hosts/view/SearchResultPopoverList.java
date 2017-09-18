@@ -32,8 +32,8 @@
 package com.microcold.hosts.view;
 
 import com.microcold.hosts.operate.HostsOperatorFactory;
-import com.microcold.hosts.view.controller.HomePageController;
 import com.microcold.hosts.view.controller.HostsSearchResult;
+import com.microcold.hosts.view.controller.MainController;
 import com.microcold.hosts.view.controller.Popover;
 import com.microcold.hosts.view.controller.PopoverTreeList;
 import javafx.event.Event;
@@ -55,10 +55,10 @@ import javafx.scene.shape.Rectangle;
  */
 public class SearchResultPopoverList extends PopoverTreeList<HostsSearchResult> implements Popover.Page {
     private Popover popover;
-    private HomePageController pageBrowser;
+    private MainController pageBrowser;
     private final Pane backgroundRectangle = new Pane();
 
-    public SearchResultPopoverList(HomePageController pageBrowser) {
+    public SearchResultPopoverList(MainController pageBrowser) {
         this.pageBrowser = pageBrowser;
         setFocusTraversable(false);
         backgroundRectangle.setId("PopoverBackground");

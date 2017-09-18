@@ -1,5 +1,6 @@
 package com.microcold.hosts.view;
 
+import com.microcold.hosts.resources.ControlResources;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Cursor;
@@ -20,7 +21,7 @@ public class SearchBox extends TextField implements ChangeListener<String> {
         getStyleClass().addAll("search-box");
         icon.getStyleClass().setAll("search-box-icon");
         innerBackground.getStyleClass().setAll("search-box-inner");
-        setPromptText("搜索");
+        setPromptText(ControlResources.getString("search-box-placeholder"));
         textProperty().addListener(this);
         setPrefHeight(30);
         clearButton.getStyleClass().setAll("search-clear-button");

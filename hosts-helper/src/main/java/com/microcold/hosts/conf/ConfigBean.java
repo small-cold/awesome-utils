@@ -1,11 +1,15 @@
 package com.microcold.hosts.conf;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.microcold.hosts.resources.ControlResources;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -40,7 +44,7 @@ public class ConfigBean {
      */
     @Getter
     @Setter
-    private String commonHostsFileName = "通用";
+    private String commonHostsFileName = ControlResources.getString("common-hosts-file");
 
     /**
      * 系统环境变量
@@ -55,6 +59,10 @@ public class ConfigBean {
     @Getter
     private int hostsCategoryDeep = 1;
 
+    @Getter
+    @Setter
+    private List<RemoteHostsFile> remoteHostsFileList = Lists.newArrayList();
+
     public ConfigBean setHostsCategoryDeep(int hostsCategoryDeep) {
         if (hostsCategoryDeep < 1) {
             hostsCategoryDeep = 1;
@@ -64,6 +72,18 @@ public class ConfigBean {
         }
         this.hostsCategoryDeep = hostsCategoryDeep;
         return this;
+    }
+
+    public boolean addRemoteHostsFile(String path, String url) {
+        RemoteHostsFile remoteHostsFile = new RemoteHostsFile();
+        remoteHostsFile.setName(path);
+        remoteHostsFile.setUrl(url);
+        remoteHostsFile.setCreateDateTime(LocalDateTime.now());
+        return remoteHostsFileList.contains(remoteHostsFile) || remoteHostsFileList.add(remoteHostsFile);
+    }
+
+    public boolean removeRemoteHostsFile(RemoteHostsFile remoteHostsFile) {
+        return remoteHostsFileList.remove(remoteHostsFile);
     }
 
 }

@@ -12,7 +12,7 @@
     -fx-border-image-insets: -32 -37 -47 -37;
 }
 
-.popover.right-tooth .popover-frame {
+.popover.search-hosts .popover-frame {
     -fx-border-image-slice: 78 120 60 50 fill;
     -fx-border-image-width: 78 120 60 50;
 }
@@ -159,4 +159,13 @@
     -fx-scale-shape: false;
     -fx-background-color: #aaaaaa;
     -fx-padding: 9.5px;
+}
+
+.undo-btn {
+}
+
+.redo-btn {
+}
+
+.home-btn {
 }

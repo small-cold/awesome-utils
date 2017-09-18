@@ -8,6 +8,8 @@ import com.microcold.hosts.operate.HostsOperatorCategory;
 import com.microcold.hosts.operate.HostsOperatorFactory;
 import com.microcold.hosts.utils.IPDomainUtil;
 import com.microcold.hosts.view.DialogUtils;
+import com.microcold.hosts.view.SearchBox;
+import com.microcold.hosts.view.SearchPopover;
 import com.microcold.hosts.view.properties.HostProperty;
 import com.microcold.hosts.view.properties.HostsOperatorProperty;
 import javafx.application.Platform;
@@ -29,6 +31,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import lombok.Getter;
@@ -47,10 +50,12 @@ import java.util.ResourceBundle;
 /*
  * Created by MicroCold on 2017/9/4.
  */
-public class HomePageController implements Initializable {
+public class MainController implements Initializable {
 
-    private static final Logger LOGGER = Logger.getLogger(HomePageController.class);
+    private static final Logger LOGGER = Logger.getLogger(MainController.class);
 
+    @FXML
+    public BorderPane root;
     @FXML
     public Label messageLabel;
     @FXML
@@ -59,17 +64,22 @@ public class HomePageController implements Initializable {
     public TableView<HostProperty> hostsTableView;
 
     @FXML
-    public TableColumn<HostsOperatorProperty, Boolean> enableCol;
+    public TableColumn<HostProperty, Boolean> enableCol;
 
     @FXML
-    public TableColumn<HostsOperatorProperty, String> ipCol;
+    public TableColumn<HostProperty, String> ipCol;
     @FXML
-    public TableColumn<HostsOperatorProperty, String> domainCol;
+    public TableColumn<HostProperty, String> domainCol;
     @FXML
-    public TableColumn<HostsOperatorProperty, String> commentCol;
+    public TableColumn<HostProperty, String> commentCol;
 
     @FXML
     public TreeView<HostsOperatorProperty> hostsFileTreeView;
+    @FXML
+    public SearchBox searchBox;
+
+    @FXML
+    private SearchPopover searchPopover;
 
     private Map<HostsOperator, TreeItem<HostsOperatorProperty>> treeItemMap = Maps.newHashMap();
 
@@ -78,7 +88,7 @@ public class HomePageController implements Initializable {
     @FXML
     public TreeItem<HostsOperatorProperty> rootTreeItem;
 
-    public HomePageController setHostsOperator(HostsOperator hostsOperator) {
+    public MainController setHostsOperator(HostsOperator hostsOperator) {
         if (hostsOperator != null) {
             this.hostsOperator = hostsOperator;
         }
@@ -96,7 +106,7 @@ public class HomePageController implements Initializable {
     @Setter
     private ObjectProperty<Callback<Throwable, Integer>> callbackObjectProperty;
 
-    public HostsOperator getHostsOperator() {
+    private HostsOperator getHostsOperator() {
         if (hostsOperator == null) {
             hostsOperator = HostsOperatorFactory.getSystemHostsOperator();
         }
@@ -138,6 +148,8 @@ public class HomePageController implements Initializable {
         commentCol.setCellFactory(TextFieldTableCell.forTableColumn(sc));
         refreshData();
         initHostsOperatorTree();
+        searchPopover.init(searchBox, this);
+
     }
 
     private void initHostsOperatorTree() {
@@ -179,7 +191,7 @@ public class HomePageController implements Initializable {
         }
     }
 
-    public void requestFocus(){
+    public void requestFocus() {
         hostsTableView.requestFocus();
     }
 
@@ -261,7 +273,7 @@ public class HomePageController implements Initializable {
         }
     }
 
-    private void refreshData() {
+    public void refreshData() {
         if (getHostsOperator() == null) {
             return;
         }
@@ -345,16 +357,8 @@ public class HomePageController implements Initializable {
         }
     }
 
-    public void treeKeyPressed(KeyEvent keyEvent) {
-        if (keyEvent.getCode() == KeyCode.ENTER) {
-            if (hostsFileTreeView.getSelectionModel().getSelectedItem().getValue() != null) {
-                sysHostsSwitchTo(hostsFileTreeView.getSelectionModel().getSelectedItem().getValue().getHostsOperator());
-            }
-        }
-    }
-
     private void sysHostsSwitchTo(HostsOperator newHostsOperator) {
-        if (newHostsOperator == null){
+        if (newHostsOperator == null) {
             return;
         }
         HostsOperator hostsOperator = HostsOperatorFactory.getSystemHostsOperator();
@@ -368,6 +372,21 @@ public class HomePageController implements Initializable {
                 // FIXME 应该直接调用undo 方法
                 hostsOperator.init();
                 getCallbackObjectProperty().getValue().call(e);
+            }
+        }
+    }
+
+    public void rootKeyPressed(KeyEvent event) {
+        if (event.isShortcutDown() && event.getCode() == KeyCode.F) {
+            searchBox.requestFocus();
+        }
+    }
+
+
+    public void treeKeyPressed(KeyEvent keyEvent) {
+        if (keyEvent.getCode() == KeyCode.ENTER) {
+            if (hostsFileTreeView.getSelectionModel().getSelectedItem().getValue() != null) {
+                sysHostsSwitchTo(hostsFileTreeView.getSelectionModel().getSelectedItem().getValue().getHostsOperator());
             }
         }
     }

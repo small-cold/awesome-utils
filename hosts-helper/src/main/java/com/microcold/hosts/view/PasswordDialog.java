@@ -45,7 +45,7 @@ public class PasswordDialog extends Dialog<String> {
         // -- textfield
         this.passwordField = new PasswordField();
         this.passwordField.setMaxWidth(Double.MAX_VALUE);
-        this.passwordField.setPromptText("Your password");
+        this.passwordField.setPromptText("请输入密码");
         GridPane.setHgrow(passwordField, Priority.ALWAYS);
         GridPane.setFillWidth(passwordField, true);
 
@@ -105,6 +105,6 @@ public class PasswordDialog extends Dialog<String> {
         grid.add(passwordField, 1, 0);
         getDialogPane().setContent(grid);
 
-        Platform.runLater(() -> passwordField.requestFocus());
+        Platform.runLater(passwordField::requestFocus);
     }
 }

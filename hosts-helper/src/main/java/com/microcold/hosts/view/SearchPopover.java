@@ -33,8 +33,8 @@ package com.microcold.hosts.view;
 
 import com.google.common.collect.Maps;
 import com.microcold.hosts.operate.HostsOperator;
-import com.microcold.hosts.view.controller.HomePageController;
 import com.microcold.hosts.view.controller.HostsSearchResult;
+import com.microcold.hosts.view.controller.MainController;
 import com.microcold.hosts.view.controller.Popover;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -54,20 +54,21 @@ import java.util.Map;
  * Implementation of popover to show search results
  */
 public class SearchPopover extends Popover {
-    private final SearchBox searchBox;
-    private HomePageController homePageController;
+    private MainController mainController;
     private Tooltip searchErrorTooltip = null;
+    private SearchBox searchBox;
     private Timeline searchErrorTooltipHidder = null;
     private SearchResultPopoverList searchResultPopoverList;
 
-    public SearchPopover(final SearchBox searchBox, HomePageController pageBrowser) {
+    public SearchPopover() {
         super();
-        this.searchBox = searchBox;
-        this.homePageController = pageBrowser;
-        this.searchResultPopoverList = new SearchResultPopoverList(pageBrowser);
-        getStyleClass().add("right-tooth");
-        setPrefWidth(400);
+        getStyleClass().add("search-hosts");
+    }
 
+    public void init(final SearchBox searchBox, MainController mainController) {
+        this.searchBox = searchBox;
+        this.mainController = mainController;
+        this.searchResultPopoverList = new SearchResultPopoverList(mainController);
         searchBox.textProperty().addListener((ObservableValue<? extends String> ov, String t, String t1) -> {
             updateResults();
         });
@@ -108,7 +109,7 @@ public class SearchPopover extends Popover {
             return;
         }
         boolean haveResults = false;
-        Map<HostsOperator, List<HostsSearchResult>> results = homePageController.search(searchBox.getText());
+        Map<HostsOperator, List<HostsSearchResult>> results = mainController.search(searchBox.getText());
         // check if we have any results
         for (List<HostsSearchResult> categoryResults : results.values()) {
             if (categoryResults.size() > 0) {
