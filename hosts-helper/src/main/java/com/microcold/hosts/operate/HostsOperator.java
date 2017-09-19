@@ -314,8 +314,13 @@ public class HostsOperator {
             return false;
         }
         HostBean hostBean = hostBeanList.get(i);
-        if (hostBean.isEnable() != enable){
+        if (hostBean.isEnable() == enable){
+            return true;
+        }
+        if (enable){
             enable(hostBean.getIp(), hostBean.getDomain());
+        }else {
+            disable(hostBean.getIp(), hostBean.getDomain());
         }
         return true;
     }

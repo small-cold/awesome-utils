@@ -41,14 +41,11 @@ import java.util.logging.Level;
 
 public class HostsHelperApp extends Application {
 
-    private static final int TOOL_BAR_BUTTON_SIZE = 30;
     private static final String MAIN_PAGE_FXML = "views/Main.fxml";
     private static final String PREFERENCES_PAGE_FXML = "views/Preferences.fxml";
 
     private Scene scene;
     private Pane root;
-    // private TitledToolBar toolBar;
-    // private Button homeButton;
 
     private MenuBar menuBar;
 
@@ -69,7 +66,7 @@ public class HostsHelperApp extends Application {
                     passwordDialog.show();
                     return 1;
                 } else {
-                    DialogUtils.createExceptionDialog("未知错误", th);
+                    DialogUtils.createExceptionDialog("发生错误", th);
                     return 0;
                 }
             });
