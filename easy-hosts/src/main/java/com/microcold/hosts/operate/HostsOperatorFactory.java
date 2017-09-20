@@ -21,7 +21,7 @@ public class HostsOperatorFactory {
 
     private static Map<File, HostsOperator> hostsOperatorMap = Maps.newHashMap();
 
-    public static HostsOperator getSystemHostsOperator() {
+    public static HostsOperator getSystemHostsOperator(){
         return SysHostsOperator.getInstance();
     }
 

@@ -16,7 +16,7 @@ public class SysHostsOperator extends HostsOperator {
 
     public static SysHostsOperator instance;
 
-    public static SysHostsOperator getInstance() {
+    public static SysHostsOperator getInstance(){
         if (instance == null) {
             instance = new SysHostsOperator();
             instance.setName("当前配置");
@@ -24,7 +24,7 @@ public class SysHostsOperator extends HostsOperator {
         return instance;
     }
 
-    private SysHostsOperator() {
+    private SysHostsOperator(){
         super(Config.getSysHostsPath());
     }
 

@@ -24,6 +24,8 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /*
  * Created by MicroCold on 2017/9/3.
@@ -31,6 +33,8 @@ import java.util.Properties;
 public class Config {
 
     private static final Logger logger = Logger.getLogger(Config.class);
+
+    private static final Pattern configPattern = Pattern.compile("(\\{[\\S\\s]*})");
 
     private static String adminPassword;
 
@@ -120,9 +124,12 @@ public class Config {
             } catch (IOException e) {
                 logger.error("读取配置文件发生错误 workPath=" + Config.workPath, e);
             }
-            String configJson = configJsSb.toString().replaceAll("^(.*?)\\{", "");
-            configJson = configJson.replaceAll("}(.*?)$", "");
-            return JSON.parseObject("{" + configJson + "}", ConfigBean.class);
+            Matcher matcher = configPattern.matcher(configJsSb.toString());
+            String configJson = "";
+            if (matcher.find()){
+                configJson = matcher.group(1);
+            }
+            return JSON.parseObject(configJson, ConfigBean.class);
         } catch (Exception e) {
             logger.error("读取用户配置文件异常", e);
             return new ConfigBean();
@@ -270,10 +277,7 @@ public class Config {
             file = file.getParentFile();
             deep++;
         }
-        if (deep <= getConfigBean().getHostsCategoryDeep()) {
-            return true;
-        }
-        return false;
+        return deep <= getConfigBean().getHostsCategoryDeep();
     }
 
     public static String getSysHostsPath() {
