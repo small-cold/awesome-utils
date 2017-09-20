@@ -14,7 +14,8 @@
         <hosts-helper.version>1.0.0-SNAPSHOT</hosts-helper.version>
         <hosts-helper.exe.version>1.0.0.0</hosts-helper.exe.version>
         <hosts-helper.main.class.name>com.microcold.hosts.view.EasyHostsApp</hosts-helper.main.class.name>
-        <!--<env.JAVA_HOME>/Library/Java/JavaVirtualMachines/jdk1.8.0_101.jdk/Contents/Home</env.JAVA_HOME>-->
+        <env.JAVA_HOME>/Library/Java/JavaVirtualMachines/jdk1.8.0_101.jdk/Contents/Home</env.JAVA_HOME>
+        <javafx.tools.ant.jar>${env.JAVA_HOME}\lib\ant-javafx.jar</javafx.tools.ant.jar>
     </properties>
 
     <build>
@@ -139,125 +140,37 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>8.8.3</version>
                 <configuration>
-                    <appName>EasyHosts</appName>
                     <vendor>MicroCold</vendor>
-                    <mainClass>com.microcold.hosts.view.EasyHostsApp</mainClass>
+                    <appName>EasyHosts</appName>
+                    <css2bin>false</css2bin>
+                    <mainClass>${hosts-helper.main.class.name}</mainClass>
+                    <identifier>EasyHostsGo</identifier>
+                    <bundler>ALL</bundler>
+                    <nativeReleaseVersion>1.0.0</nativeReleaseVersion>
+                    <needShortcut>true</needShortcut>
+                    <deployDir>${basedir}/src/main/resources</deployDir>
+                    <description>使hosts切换so easy</description>
+                    <jfxAppOutputDir>${basedir}/build/app</jfxAppOutputDir>
+                    <nativeOutputDir>${basedir}/build/native</nativeOutputDir>
                 </configuration>
+                <executions>
+                    <execution>
+                        <!-- required before build-native -->
+                        <id>create-jfxjar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build-jar</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-native</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build-native</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
-
-            <!--plugin to package mac app-->
-            <!--<plugin>-->
-            <!--<groupId>sh.tak.appbundler</groupId>-->
-            <!--<artifactId>appbundle-maven-plugin</artifactId>-->
-            <!--<configuration>-->
-            <!--<mainClass>${hosts-helper.main.class.name}</mainClass>-->
-            <!--<iconFile>icons/desktop.icns</iconFile>-->
-            <!--&lt;!&ndash;<dictionaryFile>Info.plist</dictionaryFile>&ndash;&gt;-->
-            <!--&lt;!&ndash;<jrePath>/Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk</jrePath>&ndash;&gt;-->
-            <!--<version>${hosts-helper.version}</version>-->
-            <!--</configuration>-->
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<phase>package</phase>-->
-            <!--<goals>-->
-            <!--<goal>bundle</goal>-->
-            <!--</goals>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--</plugin>-->
-            <!--end of plugin to package mac app-->
-
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-shade-plugin</artifactId>-->
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<phase>package</phase>-->
-            <!--<goals>-->
-            <!--<goal>shade</goal>-->
-            <!--</goals>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--<configuration>-->
-            <!--<shadedArtifactAttached>true</shadedArtifactAttached>-->
-            <!--<shadedClassifierName>shaded</shadedClassifierName>-->
-            <!--&lt;!&ndash;<transformers>&ndash;&gt;-->
-            <!--&lt;!&ndash;<transformer&ndash;&gt;-->
-            <!--&lt;!&ndash;implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">&ndash;&gt;-->
-            <!--&lt;!&ndash;<mainClass>${hosts-helper.main.class.name}</mainClass>&ndash;&gt;-->
-            <!--&lt;!&ndash;</transformer>&ndash;&gt;-->
-            <!--&lt;!&ndash;</transformers>&ndash;&gt;-->
-            <!--</configuration>-->
-            <!--</plugin>-->
-            <!--plugin to package exe-->
-            <!--<plugin>-->
-            <!--<groupId>org.bluestemsoftware.open.maven.plugin</groupId>-->
-            <!--<artifactId>launch4j-plugin</artifactId>-->
-            <!--<version>1.5.0.0</version>-->
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<id>l4j-cli</id>-->
-            <!--<phase>package</phase>-->
-            <!--<goals>-->
-            <!--<goal>launch4j</goal>-->
-            <!--</goals>-->
-            <!--<configuration>-->
-            <!--<headerType>console</headerType>-->
-            <!--<outfile>target/EasyHostsCmdMain.exe</outfile>-->
-            <!--<jar>target/${artifactId}-${version}-shaded.jar</jar>-->
-            <!--<errTitle>App Err</errTitle>-->
-            <!--<classPath>-->
-            <!--<mainClass>${hosts-helper.main.class.name}</mainClass>-->
-            <!--</classPath>-->
-            <!--<jre>-->
-            <!--<minVersion>1.7.0</minVersion>-->
-            <!--<maxVersion>1.8.0</maxVersion>-->
-            <!--<initialHeapSize>128</initialHeapSize>-->
-            <!--<maxHeapSize>1024</maxHeapSize>-->
-            <!--</jre>-->
-            <!--</configuration>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--</plugin>-->
-            <!--<plugin>-->
-            <!--<groupId>com.akathist.maven.plugins.launch4j</groupId>-->
-            <!--<artifactId>launch4j-maven-plugin</artifactId>-->
-            <!--<version>1.7.18</version>-->
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<id>l4j-gui</id>-->
-            <!--<phase>package</phase>-->
-            <!--<goals>-->
-            <!--<goal>launch4j</goal>-->
-            <!--</goals>-->
-            <!--<configuration>-->
-            <!--<headerType>gui</headerType>-->
-            <!--<jar>${project.build.directory}/${artifactId}-${version}-shaded.jar</jar>-->
-            <!--<outfile>${project.build.directory}/EasyHostsCmdMain.exe</outfile>-->
-            <!--<errTitle>EasyHostsCmdMain</errTitle>-->
-            <!--<classPath>-->
-            <!--<mainClass>${hosts-helper.main.class.name}</mainClass>-->
-            <!--</classPath>-->
-            <!--<icon>src/main/resources/icons/desktop.icns</icon>-->
-            <!--<jre>-->
-            <!--<minVersion>1.8.0</minVersion>-->
-            <!--</jre>-->
-            <!--<versionInfo>-->
-            <!--<fileVersion>${hosts-helper.exe.version}</fileVersion>-->
-            <!--<txtFileVersion>${project.version}</txtFileVersion>-->
-            <!--<fileDescription>${project.name}</fileDescription>-->
-            <!--<copyright>EasyHostsCmdMain copyright</copyright>-->
-            <!--<productVersion>${hosts-helper.exe.version}</productVersion>-->
-            <!--<txtProductVersion>${hosts-helper.exe.version}</txtProductVersion>-->
-            <!--<productName>${project.name}</productName>-->
-            <!--<internalName>${project.name}${hosts-helper.exe.version}</internalName>-->
-            <!--<originalFilename>EasyHostsCmdMain.exe</originalFilename>-->
-            <!--</versionInfo>-->
-            <!--</configuration>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--</plugin>-->
-            <!--end of plugin to package exe-->
         </plugins>
     </build>
 
