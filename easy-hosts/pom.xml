@@ -57,7 +57,8 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                            <excludeArtifactIds>org.projectlombok,junit</excludeArtifactIds>
+                            <excludeArtifactIds>lombok</excludeArtifactIds>
+                            <excludeGroupIds>org.projectlombok</excludeGroupIds>
                         </configuration>
                     </execution>
                 </executions>

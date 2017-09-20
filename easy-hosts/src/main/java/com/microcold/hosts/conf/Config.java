@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.microcold.hosts.utils.SystemUtil;
 import lombok.Getter;
-import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -103,7 +102,11 @@ public class Config {
             try (InputStream is = Config.class.getClassLoader()
                     .getResourceAsStream(sysProperties.getProperty("user-config-file"))) {
                 OutputStream outStream = new FileOutputStream(userSettingFile);
-                IOUtils.copy(is, outStream);
+                byte[] bytes = new byte[1024];
+                int read;
+                while ((read = is.read(bytes)) != -1) {
+                    outStream.write(bytes, 0, read);
+                }
                 outStream.close();
             } catch (IOException e) {
                 logger.error("初始化配置文件错误", e);
