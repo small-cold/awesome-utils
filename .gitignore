@@ -22,3 +22,6 @@
 hs_err_pid*
 
 .idea
+target
+easy-hosts/.git
+easy-hosts/target
